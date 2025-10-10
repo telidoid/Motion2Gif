@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Motion2Gif (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Motion2Gif (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
