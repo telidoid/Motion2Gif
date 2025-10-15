@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:vm="using:Motion2Gif.ViewModels"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vlc="using:LibVLCSharp.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Motion2Gif.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Motion2Gif">
+    <Window.Styles>
+        <Style Selector="vlc|VideoView">
+        </Style>
+    </Window.Styles>
+    <StackPanel>
+        <Button Content="Choose a file" Command="{Binding OpenVideoFile}" />
+        <Button Content="Pause" Command="{Binding PauseCmd}" />
+        <Button Content="Play" Command="{Binding PlayCmd}" />
+        <Button Content="Stop" Command="{Binding StopCmd}" />
+        <vlc:VideoView x:Name="VideoView" />
+    </StackPanel>
+</Window>
