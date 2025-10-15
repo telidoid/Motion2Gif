@@ -13,10 +13,24 @@
         </Style>
     </Window.Styles>
     <StackPanel>
-        <Button Content="Choose a file" Command="{Binding OpenVideoFile}" />
+        <Button Content="Choose a file" Command="{Binding OpenVideoFileCmd}" />
         <Button Content="Pause" Command="{Binding PauseCmd}" />
         <Button Content="Play" Command="{Binding PlayCmd}" />
         <Button Content="Stop" Command="{Binding StopCmd}" />
+        
+        <StackPanel Orientation="Vertical">
+            <Label>Starting position</Label>
+            <TextBlock Text="{Binding StartingPosition}"/>
+            <Slider Value="{Binding StartingPosition}" Minimum="0.0" Maximum="1.0"></Slider>
+        </StackPanel>
+        
+        <StackPanel Orientation="Vertical">
+            <Label>Ending position</Label>
+            <TextBlock Text="{Binding EndingPosition}"/>
+            <Slider Value="{Binding EndingPosition}" Minimum="0.0" Maximum="1.0"></Slider>
+        </StackPanel>
+
+        <Button Content="ChangePosition" Command="{Binding ChangePositionCmd}" />
         <vlc:VideoView x:Name="VideoView" />
     </StackPanel>
 </Window>

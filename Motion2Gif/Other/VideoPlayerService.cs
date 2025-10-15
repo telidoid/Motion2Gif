@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
 
@@ -20,10 +21,11 @@ public static class DurationExtensions
 public interface IVideoPlayerService
 {
     void AttachPlayer(VideoView videoView);
+    Task<VideoFileDescription> OpenAsync(Uri uri);
     void Play();
     void Pause();
     void Stop();
-    Task<VideoFileDescription> OpenAsync(Uri uri);
+    void ChangePosition(float position);
 }
 
 public class VideoPlayerService : IVideoPlayerService, IDisposable
@@ -53,6 +55,11 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
         await media.Parse();
         
         return new VideoFileDescription(uri.OriginalString, new MediaDuration(media.Duration));
+    }
+
+    public void ChangePosition(float position)
+    {
+        _player.Position = position;
     }
 
     public void Dispose()

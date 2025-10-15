@@ -1,32 +1,37 @@
 ﻿using System.Threading.Tasks;
 using System.Windows.Input;
-using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Motion2Gif.Other;
 
 namespace Motion2Gif.ViewModels;
 
-public class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase
 {
-    public IVideoPlayerService PlayerService = new VideoPlayerService();
-    public IFilePickerService FilePickerService;
+    public readonly IVideoPlayerService PlayerService = new VideoPlayerService();
+    public readonly IFilePickerService FilePickerService;
 
+    public ICommand OpenVideoFileCmd { get; }
     public ICommand PlayCmd { get; }
     public ICommand PauseCmd { get; }
     public ICommand StopCmd { get; }
-    public ICommand OpenVideoFile { get; }
+    public ICommand ChangePositionCmd { get; }
 
     public string MediaDuration { get; private set; } = "00:00:00";
+
+    [ObservableProperty] private float _startingPosition;
+    [ObservableProperty] private float _endingPosition;
     
     public MainWindowViewModel(IFilePickerService filePickerService)
     {
         FilePickerService = filePickerService;
         
+        OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
         PlayCmd = new RelayCommand(() => PlayerService.Play());
         PauseCmd = new RelayCommand(() => PlayerService.Pause());
         StopCmd = new RelayCommand(() => PlayerService.Stop());
-        
-        OpenVideoFile = new AsyncRelayCommand(OnVideoFileOpened);
+
+        ChangePositionCmd = new RelayCommand(() => PlayerService.ChangePosition(_startingPosition));
     }
 
     private async Task OnVideoFileOpened()
