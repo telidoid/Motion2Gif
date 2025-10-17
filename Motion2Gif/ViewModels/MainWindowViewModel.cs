@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Motion2Gif.Controls;
 using Motion2Gif.Other;
 
 namespace Motion2Gif.ViewModels;
@@ -17,10 +19,10 @@ public partial class MainWindowViewModel : ViewModelBase
     public ICommand StopCmd { get; }
     public ICommand ChangePositionCmd { get; }
 
-    public string MediaDuration { get; private set; } = "00:00:00";
-
-    [ObservableProperty] private float _startingPosition;
-    [ObservableProperty] private float _endingPosition;
+    [ObservableProperty] private TimeMs _currentPosition = new(0);
+    [ObservableProperty] private TimeMs _mediaDuration = new(0);
+    
+    private bool _suppressPlayerSeek;
     
     public MainWindowViewModel(IFilePickerService filePickerService)
     {
@@ -31,13 +33,33 @@ public partial class MainWindowViewModel : ViewModelBase
         PauseCmd = new RelayCommand(() => PlayerService.Pause());
         StopCmd = new RelayCommand(() => PlayerService.Stop());
 
-        ChangePositionCmd = new RelayCommand(() => PlayerService.ChangePosition(_startingPosition));
+        ChangePositionCmd = new RelayCommand(() => PlayerService.ChangeTimePosition(0));
+        
+        PlayerService.PlayerTimeChangedAction = l =>
+        {
+            try
+            {
+                _suppressPlayerSeek = true;
+                CurrentPosition = new TimeMs(l);
+            }
+            finally
+            {
+                _suppressPlayerSeek = false;
+            }
+        };
     }
 
     private async Task OnVideoFileOpened()
     {
         var path = await FilePickerService.Pick();
         var fileDescription = await PlayerService.OpenAsync(path);
-        MediaDuration = fileDescription.Duration.Formatted();
+        MediaDuration = fileDescription.Duration;
+        CurrentPosition = new TimeMs(0);
+    }
+
+    partial void OnCurrentPositionChanged(TimeMs value)
+    {
+        if (_suppressPlayerSeek) return;
+        PlayerService.ChangeTimePosition(value.Value);
     }
 }

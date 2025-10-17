@@ -3,17 +3,18 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
+using Motion2Gif.Controls;
+using Serilog;
 
 namespace Motion2Gif.Other;
 
-public record VideoFileDescription(string Name, MediaDuration Duration);
-public record MediaDuration(long DurationInMs);
+public record VideoFileDescription(string Name, TimeMs Duration);
 
 public static class DurationExtensions
 {
-    public static string Formatted(this MediaDuration duration)
+    public static string Formatted(this TimeMs duration)
     {
-        var ts = new TimeSpan(duration.DurationInMs);
+        var ts = new TimeSpan(duration.Value);
         return $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
     }
 }
@@ -25,7 +26,8 @@ public interface IVideoPlayerService
     void Play();
     void Pause();
     void Stop();
-    void ChangePosition(float position);
+    void ChangeTimePosition(long timePosition);
+    Action<long> PlayerTimeChangedAction { get; set; }
 }
 
 public class VideoPlayerService : IVideoPlayerService, IDisposable
@@ -36,6 +38,13 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     public VideoPlayerService()
     {
         _player = new MediaPlayer(_libVlc);
+        _player.TimeChanged += OnPlayerOnTimeChanged;
+    }
+
+    private void OnPlayerOnTimeChanged(object? sender, MediaPlayerTimeChangedEventArgs args)
+    {
+        // Log.Information($"Time changed: {_player.Time}");
+        this.PlayerTimeChangedAction(_player.Time);
     }
 
     public void AttachPlayer(VideoView videoView)
@@ -46,6 +55,8 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     public void Pause() => _player.Pause();
     
     public void Stop() => _player.Stop();
+
+    public Action<long> PlayerTimeChangedAction { get; set; } = _ => { };
     
     public async Task<VideoFileDescription> OpenAsync(Uri uri)
     {
@@ -54,16 +65,17 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
 
         await media.Parse();
         
-        return new VideoFileDescription(uri.OriginalString, new MediaDuration(media.Duration));
+        return new VideoFileDescription(uri.OriginalString, new TimeMs(media.Duration));
     }
 
-    public void ChangePosition(float position)
+    public void ChangeTimePosition(long timePosition)
     {
-        _player.Position = position;
+        _player.Time = timePosition;
     }
 
     public void Dispose()
     {
+        _player.TimeChanged -= OnPlayerOnTimeChanged;
         _player.Dispose();
         _libVlc.Dispose();
     }
