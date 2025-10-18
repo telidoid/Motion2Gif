@@ -2,9 +2,11 @@
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Serilog;
 
 namespace Motion2Gif.Controls;
@@ -19,23 +21,59 @@ public record struct PositionMarker(Rect Box)
     }
 }
 
+public record struct Timeline(Rect Box)
+{
+    private bool _isPressed = false;
+
+    public void Pressed(Point pointPosition, Action action)
+    {
+        if (!Box.Contains(pointPosition)) 
+            return;
+
+        _isPressed = true;
+        action();
+    }
+
+    public void Moved(Point pointPosition, Action action)
+    {
+        if (!_isPressed)
+            return;
+
+        if (!Box.Contains(pointPosition)) 
+            return;
+
+        action();
+    }
+
+    public void Unpressed(Point pointPosition)
+    {
+        if (!_isPressed)
+            return;
+
+        if (!Box.Contains(pointPosition)) 
+            return;
+
+        _isPressed = false;
+    }
+}
+
 public class MediaTimeline : Control
 {
-    public static readonly DirectProperty<MediaTimeline, TimeMs> CurrentPositionProperty =
+    public static readonly DirectProperty<MediaTimeline, TimeMs> CurrentTimePositionProperty =
         AvaloniaProperty.RegisterDirect<MediaTimeline, TimeMs>(
-            nameof(CurrentPosition),
-            o => o.CurrentPosition,
-            (o, v) => o.CurrentPosition = v,
+            nameof(CurrentTimePosition),
+            o => o.CurrentTimePosition,
+            (o, v) => o.CurrentTimePosition = v,
             defaultBindingMode: BindingMode.TwoWay,
             enableDataValidation: false
             );
     
-    private TimeMs _currentPosition;
+    private TimeMs _currentTimePosition;
 
-    public TimeMs CurrentPosition
+    public TimeMs CurrentTimePosition
     {
-        get => _currentPosition;
-        set => SetAndRaise(CurrentPositionProperty, ref _currentPosition, value);
+        get => _currentTimePosition;
+        set => SetAndRaise(CurrentTimePositionProperty, ref _currentTimePosition, value);
     }
 
     public static readonly DirectProperty<MediaTimeline, TimeMs> MediaDurationProperty =
@@ -55,55 +93,72 @@ public class MediaTimeline : Control
         set => SetAndRaise(MediaDurationProperty, ref _mediaDuration, value);
     }
     
+    private const float height = 35f;
+    private Timeline _timeline;
+    
     public MediaTimeline()
     {
-        AffectsRender<MediaTimeline>(CurrentPositionProperty, MediaDurationProperty);
+        _timeline =  new Timeline(new Rect(0, 0, Bounds.Width, height));
+        
+        AffectsRender<MediaTimeline>(CurrentTimePositionProperty, MediaDurationProperty);
     }
-
-    private const float height = 35f;
-    private PositionMarker _positionMarker = new PositionMarker(new Rect(0, 0, 5, height));
     
     public override void Render(DrawingContext context)
     {
         context.FillRectangle(Brushes.Gray, Bounds);
+        
+        _timeline = _timeline with { Box = new Rect(0, 0, Bounds.Width, height )};
+        context.DrawRectangle(Brushes.Beige, null, _timeline.Box);
 
-        var y = height / 2f;
-        var pointZero = new Point(0, y);
-        
-        // line
-        context.DrawLine(new Pen(Brushes.Beige, height), pointZero, new Point(Bounds.Width, y));
-
-        _positionMarker = GetPositionMarker();
-        
-        // progress
-        context.DrawLine(new Pen(Brushes.GreenYellow, height), pointZero, _positionMarker.Box.Center);
-        
-        // marker
-        context.DrawRectangle(Brushes.Red, null, _positionMarker.Box);
+        var marker = GetPositionMarker();
+        var pointZero = new Point(0, height / 2f);
+        context.DrawLine(new Pen(Brushes.GreenYellow, height), pointZero, marker.Box.Center); // progression
+        context.DrawRectangle(Brushes.Red, null, marker.Box); // marker
     }
 
     private PositionMarker GetPositionMarker()
     {
-        var markerPosition = CurrentPosition.Value * Bounds.Width / Math.Max(1, MediaDuration.Value);
-        return new PositionMarker(new Rect(markerPosition, 0, 5, height));        
+        var markerPosition = CurrentTimePosition.Value * Bounds.Width / Math.Max(1, MediaDuration.Value);
+        
+        if (CurrentTimePosition == MediaDuration && CurrentTimePosition is not {Value: 0})
+            markerPosition = Bounds.Width;
+
+        var width = 5;
+        
+        return new PositionMarker(new Rect(markerPosition-width, 0, width, height));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        CurrentPosition = new TimeMs(3000);
-        Log.Information("OnPointerPressed");
+        var point = e.GetCurrentPoint(this);
+        
+        _timeline.Pressed(point.Position, () =>
+        {
+            CurrentTimePosition = TimeMs.FromDip(point.Position.X, Bounds.Width, MediaDuration);
+        });
+
         base.OnPointerPressed(e);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        Log.Information("OnPointerMoved");
+        var point = e.GetCurrentPoint(this);
+        
+        _timeline.Moved(point.Position, () =>
+        {
+            CurrentTimePosition = TimeMs.FromDip(point.Position.X, Bounds.Width, MediaDuration);
+        });
+
         base.OnPointerMoved(e);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        Log.Information("OnPointerReleased");
+        var point = e.GetCurrentPoint(this);
+        Log.Information($"OnPointerReleased, {point.Position}");
+
+        _timeline.Unpressed(point.Position);
+        
         base.OnPointerReleased(e);
     }
 }

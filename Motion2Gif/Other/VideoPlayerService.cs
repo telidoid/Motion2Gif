@@ -38,13 +38,8 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     public VideoPlayerService()
     {
         _player = new MediaPlayer(_libVlc);
-        _player.TimeChanged += OnPlayerOnTimeChanged;
-    }
-
-    private void OnPlayerOnTimeChanged(object? sender, MediaPlayerTimeChangedEventArgs args)
-    {
-        // Log.Information($"Time changed: {_player.Time}");
-        this.PlayerTimeChangedAction(_player.Time);
+        _player.TimeChanged += (_, _) => this.PlayerTimeChangedAction(_player.Time);
+        _player.EndReached += (_, _) => this.PlayerTimeChangedAction(_player.Media!.Duration);
     }
 
     public void AttachPlayer(VideoView videoView)
@@ -75,7 +70,6 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
 
     public void Dispose()
     {
-        _player.TimeChanged -= OnPlayerOnTimeChanged;
         _player.Dispose();
         _libVlc.Dispose();
     }

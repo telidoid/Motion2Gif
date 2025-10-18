@@ -39,7 +39,7 @@ public partial class MainWindow : Window
     private void OnWindowClosed(object? o, EventArgs e)
     {
         Log.Information("Main windows is closed");
-
+        
         Dispatcher.UIThread.Post(() =>
         {
             // _player.Dispose();

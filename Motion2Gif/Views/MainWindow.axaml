@@ -24,7 +24,7 @@
         <vlc:VideoView x:Name="VideoView" />
         
         <local:MediaTimeline MinHeight="200" 
-                             CurrentPosition="{Binding CurrentPosition}"
+                             CurrentTimePosition="{Binding CurrentPosition}"
                              MediaDuration="{Binding MediaDuration}"
                              >
         </local:MediaTimeline>
