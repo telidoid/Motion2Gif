@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Automation;
-using Avalonia.Threading;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
 using Motion2Gif.Controls;
@@ -44,13 +43,8 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
         _player.TimeChanged += (_, _) => this.PlayerTimeChangedAction(_player.Time);
         _player.EndReached += (_, _) =>
         {
-            Log.Information($"End Reached. Time: {_player.Time}, Duration: {_player.Media!.Duration}, State: {_player.State}");
             this.PlayerTimeChangedAction(_player.Media!.Duration);
             _userDefinedTimePosition = -1;
-        };
-        _player.Stopped += (sender, args) =>
-        {
-            Log.Information($"Stopped. Time: {_player.Time}, Duration: {_player.Media!.Duration}, State: {_player.State}");
         };
     }
 
@@ -98,6 +92,22 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     {
         _player.Time = timePosition;
         _userDefinedTimePosition = timePosition;
+
+        if (_player.State is VLCState.Ended)
+        {
+            _player.Stop();
+            
+            void OnPositionChanged(object? o, EventArgs eventArgs)
+            {
+                _player.Pause();
+                _player.PositionChanged -=  OnPositionChanged;
+            }
+
+            _player.PositionChanged += OnPositionChanged;
+            
+            _player.Play();
+            _player.Time = _userDefinedTimePosition;
+        }
     }
 
     public void Dispose()
