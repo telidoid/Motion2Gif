@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Motion2Gif.Controls;
 using Motion2Gif.Other;
-// using static Motion2Gif.Other.AudioVolume;
 
 namespace Motion2Gif.ViewModels;
 
