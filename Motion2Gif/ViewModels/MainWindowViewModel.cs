@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Motion2Gif.Controls;
 using Motion2Gif.Other;
+// using static Motion2Gif.Other.AudioVolume;
 
 namespace Motion2Gif.ViewModels;
 
@@ -20,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private TimeMs _currentPosition = new(0);
     [ObservableProperty] private TimeMs _mediaDuration = new(0);
+    [ObservableProperty] private int _volume = 100;
     
     private bool _suppressPlayerSeek;
     
@@ -63,4 +64,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (_suppressPlayerSeek) return;
         PlayerService.ChangeTimePosition(value.Value);
     }
+
+    partial void OnVolumeChanged(int value) => 
+        PlayerService.ChangeVolume(AudioVolume.Create(value));
 }

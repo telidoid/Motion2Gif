@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Avalonia.Automation;
 using Avalonia.Threading;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
@@ -27,6 +28,7 @@ public interface IVideoPlayerService
     void Pause();
     void Stop();
     void ChangeTimePosition(long timePosition);
+    void ChangeVolume(AudioVolume volume);
     Action<long> PlayerTimeChangedAction { get; set; }
 }
 
@@ -50,6 +52,8 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     public void Pause() => _player.Pause();
     
     public void Stop() => _player.Stop();
+
+    public void ChangeVolume(AudioVolume volume) => _player.Volume = volume.Value;
 
     public Action<long> PlayerTimeChangedAction { get; set; } = _ => { };
     
