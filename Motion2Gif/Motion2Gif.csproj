@@ -6,6 +6,7 @@
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <ApplicationIcon>Assets\windows\Motion2Gif_M2GF.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -32,5 +33,9 @@
         <DependentUpon>MainWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
     </ItemGroup>
 </Project>

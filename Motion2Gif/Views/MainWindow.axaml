@@ -9,7 +9,8 @@
         Width="600" Height="435"
         x:Class="Motion2Gif.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="Motion2Gif">
+        Title="Motion2Gif"
+        Icon="/Assets/png/Motion2Gif_M2GF_128.png">
     <Window.Styles>
         <Style Selector="vlc|VideoView">
         </Style>
