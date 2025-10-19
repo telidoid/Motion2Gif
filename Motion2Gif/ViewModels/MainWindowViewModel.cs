@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Motion2Gif.Controls;
 using Motion2Gif.Other;
+using Serilog;
 
 namespace Motion2Gif.ViewModels;
 
@@ -19,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private TimeMs _currentPosition = new(0);
     [ObservableProperty] private TimeMs _mediaDuration = new(0);
     [ObservableProperty] private int _volume = 100;
+    [ObservableProperty] private string _displayedTime = "";
     
     private bool _suppressPlayerSeek;
     
@@ -40,6 +42,8 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 _suppressPlayerSeek = true;
                 CurrentPosition = new TimeMs(l);
+                
+                DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
             }
             finally
             {
@@ -48,6 +52,8 @@ public partial class MainWindowViewModel : ViewModelBase
         };
         
         PlayerService.ChangeVolume(AudioVolume.Create(Volume));
+
+        DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
     }
 
     private async Task OnVideoFileOpened()

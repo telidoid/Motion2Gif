@@ -34,6 +34,7 @@
             <Button Content="TogglePlay" Command="{Binding TogglePlayCmd}" />
             <Button Content="Stop" Command="{Binding StopCmd}" />
             <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" />
+            <TextBlock Text="{Binding DisplayedTime}" />
         </StackPanel>
     </Grid>
 </Window>

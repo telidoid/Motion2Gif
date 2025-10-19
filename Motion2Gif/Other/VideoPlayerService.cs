@@ -1,23 +1,12 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
 using Motion2Gif.Controls;
-using Serilog;
 
 namespace Motion2Gif.Other;
 
 public record VideoFileDescription(string Name, TimeMs Duration);
-
-public static class DurationExtensions
-{
-    public static string Formatted(this TimeMs duration)
-    {
-        var ts = new TimeSpan(duration.Value);
-        return $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
-    }
-}
 
 public interface IVideoPlayerService
 {
