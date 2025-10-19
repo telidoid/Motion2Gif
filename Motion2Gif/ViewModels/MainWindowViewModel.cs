@@ -11,7 +11,7 @@ namespace Motion2Gif.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     public readonly IVideoPlayerService PlayerService = new VideoPlayerService();
-    public readonly IFilePickerService FilePickerService;
+    private readonly IFilePickerService _filePickerService;
 
     public ICommand OpenVideoFileCmd { get; }
     public ICommand TogglePlayCmd { get; }
@@ -25,7 +25,7 @@ public partial class MainWindowViewModel : ViewModelBase
     
     public MainWindowViewModel(IFilePickerService filePickerService)
     {
-        FilePickerService = filePickerService;
+        _filePickerService = filePickerService;
         
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
         TogglePlayCmd = new RelayCommand(() => PlayerService.TogglePlay());
@@ -53,7 +53,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task OnVideoFileOpened()
     {
-        var path = await FilePickerService.Pick();
+        var path = await _filePickerService.Pick();
+        
+        if (path == null)
+            return;
+        
         var fileDescription = await PlayerService.OpenAsync(path);
         MediaDuration = fileDescription.Duration;
         CurrentPosition = new TimeMs(0);
