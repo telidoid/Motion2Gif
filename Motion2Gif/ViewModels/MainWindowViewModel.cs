@@ -30,7 +30,7 @@ public partial class MainWindowViewModel : ViewModelBase
         
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
         PlayCmd = new RelayCommand(() => PlayerService.Play());
-        PauseCmd = new RelayCommand(() => PlayerService.Pause());
+        PauseCmd = new RelayCommand(() => PlayerService.TogglePause());
         StopCmd = new RelayCommand(() =>
         {
             CurrentPosition = new TimeMs(0);

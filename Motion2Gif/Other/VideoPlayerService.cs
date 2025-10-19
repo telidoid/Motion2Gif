@@ -25,7 +25,7 @@ public interface IVideoPlayerService
     void AttachPlayer(VideoView videoView);
     Task<VideoFileDescription> OpenAsync(Uri uri);
     void Play();
-    void Pause();
+    void TogglePause();
     void Stop();
     void ChangeTimePosition(long timePosition);
     void ChangeVolume(AudioVolume volume);
@@ -36,12 +36,22 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
 {
     private readonly MediaPlayer _player;
     private readonly LibVLC _libVlc = new();
+    private long _userDefinedTimePosition = 0;
 
     public VideoPlayerService()
     {
         _player = new MediaPlayer(_libVlc);
         _player.TimeChanged += (_, _) => this.PlayerTimeChangedAction(_player.Time);
-        _player.EndReached += (_, _) => this.PlayerTimeChangedAction(_player.Media!.Duration);
+        _player.EndReached += (_, _) =>
+        {
+            Log.Information($"End Reached. Time: {_player.Time}, Duration: {_player.Media!.Duration}, State: {_player.State}");
+            this.PlayerTimeChangedAction(_player.Media!.Duration);
+            _userDefinedTimePosition = -1;
+        };
+        _player.Stopped += (sender, args) =>
+        {
+            Log.Information($"Stopped. Time: {_player.Time}, Duration: {_player.Media!.Duration}, State: {_player.State}");
+        };
     }
 
     public void AttachPlayer(VideoView videoView)
@@ -49,8 +59,25 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     
     public void Play() => _player.Play();
 
-    public void Pause() => _player.Pause();
-    
+    public void TogglePause()
+    {
+        switch (_player.State)
+        {
+            case VLCState.Stopped:
+                _player.Play();
+                _player.Time = _userDefinedTimePosition;
+                break;
+            case VLCState.Ended:
+                _player.Stop();
+                _player.Play();
+                _player.Time = _userDefinedTimePosition;
+                break;
+            default:
+                _player.Pause();
+                break;
+        }
+    }
+
     public void Stop() => _player.Stop();
 
     public void ChangeVolume(AudioVolume volume) => _player.Volume = volume.Value;
@@ -70,6 +97,7 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     public void ChangeTimePosition(long timePosition)
     {
         _player.Time = timePosition;
+        _userDefinedTimePosition = timePosition;
     }
 
     public void Dispose()
