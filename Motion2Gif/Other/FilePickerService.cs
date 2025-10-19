@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -9,12 +10,12 @@ namespace Motion2Gif.Other;
 
 public interface IFilePickerService
 {
-    Task<Uri> Pick();
+    Task<Uri?> Pick();
 }
 
 public class FilePickerService(Func<TopLevel> getTopLevel) : IFilePickerService
 {
-    public async Task<Uri> Pick()
+    public async Task<Uri?> Pick()
     {
         var topLevel = getTopLevel(); 
 
@@ -24,7 +25,8 @@ public class FilePickerService(Func<TopLevel> getTopLevel) : IFilePickerService
             AllowMultiple = false
         });
 
-        if (files.Count < 1) throw new InvalidOperationException("No files found");
+        if (!files.Any())
+            return null;
         
         var file = files[0];
         var fileProperties = await file.GetBasicPropertiesAsync();

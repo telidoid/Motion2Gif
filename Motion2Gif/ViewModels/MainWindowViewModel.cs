@@ -5,31 +5,32 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Motion2Gif.Controls;
 using Motion2Gif.Other;
+using Serilog;
 
 namespace Motion2Gif.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
     public readonly IVideoPlayerService PlayerService = new VideoPlayerService();
-    public readonly IFilePickerService FilePickerService;
+    private readonly IFilePickerService _filePickerService;
 
     public ICommand OpenVideoFileCmd { get; }
-    public ICommand PlayCmd { get; }
-    public ICommand PauseCmd { get; }
+    public ICommand TogglePlayCmd { get; }
     public ICommand StopCmd { get; }
 
     [ObservableProperty] private TimeMs _currentPosition = new(0);
     [ObservableProperty] private TimeMs _mediaDuration = new(0);
+    [ObservableProperty] private int _volume = 100;
+    [ObservableProperty] private string _displayedTime = "00:00 / 00:00";
     
     private bool _suppressPlayerSeek;
     
     public MainWindowViewModel(IFilePickerService filePickerService)
     {
-        FilePickerService = filePickerService;
+        _filePickerService = filePickerService;
         
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
-        PlayCmd = new RelayCommand(() => PlayerService.Play());
-        PauseCmd = new RelayCommand(() => PlayerService.Pause());
+        TogglePlayCmd = new RelayCommand(() => PlayerService.TogglePlay());
         StopCmd = new RelayCommand(() =>
         {
             CurrentPosition = new TimeMs(0);
@@ -42,25 +43,53 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 _suppressPlayerSeek = true;
                 CurrentPosition = new TimeMs(l);
+                this.UpdateDisplayedTime();
             }
             finally
             {
                 _suppressPlayerSeek = false;
             }
         };
+        
+        PlayerService.ChangeVolume(AudioVolume.Create(Volume));
     }
 
     private async Task OnVideoFileOpened()
     {
-        var path = await FilePickerService.Pick();
+        var path = await _filePickerService.Pick();
+        
+        if (path == null)
+            return;
+        
         var fileDescription = await PlayerService.OpenAsync(path);
+        MediaDuration = fileDescription.Duration;
+        CurrentPosition = new TimeMs(0);
+    }
+
+    public async Task OpenVideoFile(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        var fileDescription = await PlayerService.OpenAsync(new Uri(path));
         MediaDuration = fileDescription.Duration;
         CurrentPosition = new TimeMs(0);
     }
 
     partial void OnCurrentPositionChanged(TimeMs value)
     {
-        if (_suppressPlayerSeek) return;
+        if (_suppressPlayerSeek) 
+            return;
+        
         PlayerService.ChangeTimePosition(value.Value);
+        this.UpdateDisplayedTime();
     }
+
+    private void UpdateDisplayedTime()
+    {
+        DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
+    }
+
+    partial void OnVolumeChanged(int value) => 
+        PlayerService.ChangeVolume(AudioVolume.Create(value));
 }

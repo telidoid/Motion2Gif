@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
-using Serilog;
 
 namespace Motion2Gif.Controls;
 
@@ -107,10 +106,15 @@ public class MediaTimeline : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         var point = e.GetCurrentPoint(this);
-        Log.Information($"OnPointerReleased, {point.Position}");
 
         _timeline.Unpressed(point.Position);
         
         base.OnPointerReleased(e);
+    }
+
+    protected override void OnPointerExited(PointerEventArgs e)
+    {
+        _timeline.Release();
+        base.OnPointerExited(e);
     }
 }

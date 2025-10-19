@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
 using Motion2Gif.Controls;
@@ -10,23 +9,14 @@ namespace Motion2Gif.Other;
 
 public record VideoFileDescription(string Name, TimeMs Duration);
 
-public static class DurationExtensions
-{
-    public static string Formatted(this TimeMs duration)
-    {
-        var ts = new TimeSpan(duration.Value);
-        return $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
-    }
-}
-
 public interface IVideoPlayerService
 {
     void AttachPlayer(VideoView videoView);
     Task<VideoFileDescription> OpenAsync(Uri uri);
-    void Play();
-    void Pause();
+    void TogglePlay();
     void Stop();
     void ChangeTimePosition(long timePosition);
+    void ChangeVolume(AudioVolume volume);
     Action<long> PlayerTimeChangedAction { get; set; }
 }
 
@@ -34,22 +24,50 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
 {
     private readonly MediaPlayer _player;
     private readonly LibVLC _libVlc = new();
+    private long _userDefinedTimePosition = 0;
 
     public VideoPlayerService()
     {
         _player = new MediaPlayer(_libVlc);
         _player.TimeChanged += (_, _) => this.PlayerTimeChangedAction(_player.Time);
-        _player.EndReached += (_, _) => this.PlayerTimeChangedAction(_player.Media!.Duration);
+        _player.EndReached += (_, _) =>
+        {
+            this.PlayerTimeChangedAction(_player.Media!.Duration);
+            _userDefinedTimePosition = 0;
+        };
     }
 
     public void AttachPlayer(VideoView videoView)
         => videoView.MediaPlayer = _player;
     
-    public void Play() => _player.Play();
+    public void TogglePlay()
+    {
+        switch (_player.State)
+        {
+            case VLCState.Stopped:
+                _player.Play();
+                _player.Time = _userDefinedTimePosition;
+                break;
+            case VLCState.Ended:
+                _player.Stop();
+                _player.Play();
+                _player.Time = _userDefinedTimePosition;
+                break;
+            default:
+                _player.Pause();
+                break;
+        }
+    }
 
-    public void Pause() => _player.Pause();
-    
-    public void Stop() => _player.Stop();
+    public void Stop()
+    {
+        if (_player.State is VLCState.Stopped)
+            return;
+        
+        _player.Stop();
+    }
+
+    public void ChangeVolume(AudioVolume volume) => _player.Volume = volume.Value;
 
     public Action<long> PlayerTimeChangedAction { get; set; } = _ => { };
     
@@ -66,6 +84,23 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     public void ChangeTimePosition(long timePosition)
     {
         _player.Time = timePosition;
+        _userDefinedTimePosition = timePosition;
+
+        if (_player.State is VLCState.Ended)
+        {
+            _player.Stop();
+            
+            void OnPositionChanged(object? o, EventArgs eventArgs)
+            {
+                _player.Pause();
+                _player.PositionChanged -=  OnPositionChanged;
+            }
+
+            _player.PositionChanged += OnPositionChanged;
+            
+            _player.Play();
+            _player.Time = _userDefinedTimePosition;
+        }
     }
 
     public void Dispose()
