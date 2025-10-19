@@ -12,8 +12,6 @@ namespace Motion2Gif.Views;
 
 public partial class MainWindow : Window
 {
-    private static readonly Resolution MinResolution = new(400, 400);
-    
     public MainWindow()
     {
         InitializeComponent();
@@ -27,11 +25,6 @@ public partial class MainWindow : Window
             var vm = DataContext as MainWindowViewModel;
             vm!.PlayerService.AttachPlayer(VideoView);
         });
-        
-        this.MinHeight = MinResolution.Height;
-        this.MinWidth = MinResolution.Width;
-        VideoView.MinHeight = MinResolution.Height;
-        VideoView.MinWidth = MinResolution.Width;
         
         this.Closed += OnWindowClosed;
     }

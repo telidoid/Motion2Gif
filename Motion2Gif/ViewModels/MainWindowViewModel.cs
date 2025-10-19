@@ -17,7 +17,6 @@ public partial class MainWindowViewModel : ViewModelBase
     public ICommand PlayCmd { get; }
     public ICommand PauseCmd { get; }
     public ICommand StopCmd { get; }
-    public ICommand ChangePositionCmd { get; }
 
     [ObservableProperty] private TimeMs _currentPosition = new(0);
     [ObservableProperty] private TimeMs _mediaDuration = new(0);
@@ -31,10 +30,12 @@ public partial class MainWindowViewModel : ViewModelBase
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
         PlayCmd = new RelayCommand(() => PlayerService.Play());
         PauseCmd = new RelayCommand(() => PlayerService.Pause());
-        StopCmd = new RelayCommand(() => PlayerService.Stop());
+        StopCmd = new RelayCommand(() =>
+        {
+            CurrentPosition = new TimeMs(0);
+            PlayerService.Stop();
+        });
 
-        ChangePositionCmd = new RelayCommand(() => PlayerService.ChangeTimePosition(0));
-        
         PlayerService.PlayerTimeChangedAction = l =>
         {
             try

@@ -1,62 +1,14 @@
 ﻿using System;
 using Avalonia;
-using Avalonia.Animation;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Threading;
 using Serilog;
 
 namespace Motion2Gif.Controls;
 
 // ReSharper disable once MemberCanBePrivate.
-
-public record struct PositionMarker(Rect Box)
-{
-    public bool IsHit(Point point)
-    {
-        return Box.Contains(point);
-    }
-}
-
-public record struct Timeline(Rect Box)
-{
-    private bool _isPressed = false;
-
-    public void Pressed(Point pointPosition, Action action)
-    {
-        if (!Box.Contains(pointPosition)) 
-            return;
-
-        _isPressed = true;
-        action();
-    }
-
-    public void Moved(Point pointPosition, Action action)
-    {
-        if (!_isPressed)
-            return;
-
-        if (!Box.Contains(pointPosition)) 
-            return;
-
-        action();
-    }
-
-    public void Unpressed(Point pointPosition)
-    {
-        if (!_isPressed)
-            return;
-
-        if (!Box.Contains(pointPosition)) 
-            return;
-
-        _isPressed = false;
-    }
-}
-
 public class MediaTimeline : Control
 {
     public static readonly DirectProperty<MediaTimeline, TimeMs> CurrentTimePositionProperty =
@@ -118,14 +70,14 @@ public class MediaTimeline : Control
 
     private PositionMarker GetPositionMarker()
     {
-        var markerPosition = CurrentTimePosition.Value * Bounds.Width / Math.Max(1, MediaDuration.Value);
+        var nextXPos = CurrentTimePosition.Value * Bounds.Width / Math.Max(1, MediaDuration.Value);
         
         if (CurrentTimePosition == MediaDuration && CurrentTimePosition is not {Value: 0})
-            markerPosition = Bounds.Width;
+            nextXPos = Bounds.Width;
 
         var width = 5;
         
-        return new PositionMarker(new Rect(markerPosition-width, 0, width, height));
+        return new PositionMarker(new Rect(nextXPos-(width/2f), 0, width, height));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
