@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using System.IO;
 using Avalonia.Logging;
 using Serilog;
 using LogEventLevel = Serilog.Events.LogEventLevel;
@@ -25,10 +26,18 @@ internal static class Program
 
     private static AppBuilder ConfigureAppLogging(this AppBuilder appBuilder)
     {
+        var logsDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Motion2Gif", "Logs");
+        
+        Directory.CreateDirectory(logsDir);
+        
+        var logFile = Path.Combine(logsDir, "log-.txt");
+        
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .WriteTo.File(
-                path: "Logs/log-.txt",
+                path: logFile,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 30,
                 rollOnFileSizeLimit: true,

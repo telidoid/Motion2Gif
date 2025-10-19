@@ -16,7 +16,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         Core.Initialize();
-
+        
         var filePickerService = new FilePickerService(() => this);
         DataContext = new MainWindowViewModel(filePickerService);
         

@@ -20,7 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private TimeMs _currentPosition = new(0);
     [ObservableProperty] private TimeMs _mediaDuration = new(0);
     [ObservableProperty] private int _volume = 100;
-    [ObservableProperty] private string _displayedTime = "";
+    [ObservableProperty] private string _displayedTime = "00:00 / 00:00";
     
     private bool _suppressPlayerSeek;
     
