@@ -26,7 +26,7 @@ public static class TimeMsExtensions
         var ts = timeMs.TimeStamp();
 
         return ts.Hours == 0 ? 
-            $"{ts.Minutes:00}:{ts.Seconds:00}" : 
+            $"{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}" : 
             $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
     }
 }

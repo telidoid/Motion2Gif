@@ -35,11 +35,6 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
             this.PlayerTimeChangedAction(_player.Media!.Duration);
             _userDefinedTimePosition = 0;
         };
-
-        _player.PausableChanged += (_, _) =>
-        {
-            Log.Information($"Pausable changed. Player state: {_player.State}, Will play: {_player.WillPlay}, Can pause: {_player.CanPause}");
-        };
     }
 
     public void AttachPlayer(VideoView videoView)
@@ -47,7 +42,6 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     
     public void TogglePlay()
     {
-        Log.Information($"Player state: {_player.State}, Will play: {_player.WillPlay}, Can pause: {_player.CanPause}");
         switch (_player.State)
         {
             case VLCState.Stopped:
@@ -63,7 +57,6 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
                 _player.Pause();
                 break;
         }
-        Log.Information($"Player state after: {_player.State}");
     }
 
     public void Stop()

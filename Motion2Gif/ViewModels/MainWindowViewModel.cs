@@ -42,8 +42,7 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 _suppressPlayerSeek = true;
                 CurrentPosition = new TimeMs(l);
-                
-                DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
+                this.UpdateDisplayedTime();
             }
             finally
             {
@@ -52,8 +51,6 @@ public partial class MainWindowViewModel : ViewModelBase
         };
         
         PlayerService.ChangeVolume(AudioVolume.Create(Volume));
-
-        DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
     }
 
     private async Task OnVideoFileOpened()
@@ -70,8 +67,16 @@ public partial class MainWindowViewModel : ViewModelBase
 
     partial void OnCurrentPositionChanged(TimeMs value)
     {
-        if (_suppressPlayerSeek) return;
+        if (_suppressPlayerSeek) 
+            return;
+        
         PlayerService.ChangeTimePosition(value.Value);
+        this.UpdateDisplayedTime();
+    }
+
+    private void UpdateDisplayedTime()
+    {
+        DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
     }
 
     partial void OnVolumeChanged(int value) => 
