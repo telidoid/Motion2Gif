@@ -37,4 +37,9 @@ public record struct Timeline(Rect Box)
 
         _isPressed = false;
     }
+
+    public void Release()
+    {
+        this._isPressed = false;
+    }
 }
