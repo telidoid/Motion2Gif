@@ -23,8 +23,7 @@ public interface IVideoPlayerService
 {
     void AttachPlayer(VideoView videoView);
     Task<VideoFileDescription> OpenAsync(Uri uri);
-    void Play();
-    void TogglePause();
+    void TogglePlay();
     void Stop();
     void ChangeTimePosition(long timePosition);
     void ChangeVolume(AudioVolume volume);
@@ -51,9 +50,7 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     public void AttachPlayer(VideoView videoView)
         => videoView.MediaPlayer = _player;
     
-    public void Play() => _player.Play();
-
-    public void TogglePause()
+    public void TogglePlay()
     {
         switch (_player.State)
         {

@@ -14,8 +14,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public readonly IFilePickerService FilePickerService;
 
     public ICommand OpenVideoFileCmd { get; }
-    public ICommand PlayCmd { get; }
-    public ICommand PauseCmd { get; }
+    public ICommand TogglePlayCmd { get; }
     public ICommand StopCmd { get; }
 
     [ObservableProperty] private TimeMs _currentPosition = new(0);
@@ -29,8 +28,7 @@ public partial class MainWindowViewModel : ViewModelBase
         FilePickerService = filePickerService;
         
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
-        PlayCmd = new RelayCommand(() => PlayerService.Play());
-        PauseCmd = new RelayCommand(() => PlayerService.TogglePause());
+        TogglePlayCmd = new RelayCommand(() => PlayerService.TogglePlay());
         StopCmd = new RelayCommand(() =>
         {
             CurrentPosition = new TimeMs(0);
@@ -49,6 +47,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 _suppressPlayerSeek = false;
             }
         };
+        
+        PlayerService.ChangeVolume(AudioVolume.Create(Volume));
     }
 
     private async Task OnVideoFileOpened()

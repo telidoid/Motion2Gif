@@ -31,8 +31,7 @@
         </local:MediaTimeline>
         
         <StackPanel Grid.Row="3" Orientation="Horizontal">
-            <Button Content="Pause" Command="{Binding PauseCmd}" />
-            <Button Content="Play" Command="{Binding PlayCmd}" />
+            <Button Content="TogglePlay" Command="{Binding TogglePlayCmd}" />
             <Button Content="Stop" Command="{Binding StopCmd}" />
             <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" />
         </StackPanel>
