@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
 using Motion2Gif.Controls;
+using Serilog;
 
 namespace Motion2Gif.Other;
 
@@ -32,7 +33,12 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
         _player.EndReached += (_, _) =>
         {
             this.PlayerTimeChangedAction(_player.Media!.Duration);
-            _userDefinedTimePosition = -1;
+            _userDefinedTimePosition = 0;
+        };
+
+        _player.PausableChanged += (_, _) =>
+        {
+            Log.Information($"Pausable changed. Player state: {_player.State}, Will play: {_player.WillPlay}, Can pause: {_player.CanPause}");
         };
     }
 
@@ -41,6 +47,7 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
     
     public void TogglePlay()
     {
+        Log.Information($"Player state: {_player.State}, Will play: {_player.WillPlay}, Can pause: {_player.CanPause}");
         switch (_player.State)
         {
             case VLCState.Stopped:
@@ -56,9 +63,16 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
                 _player.Pause();
                 break;
         }
+        Log.Information($"Player state after: {_player.State}");
     }
 
-    public void Stop() => _player.Stop();
+    public void Stop()
+    {
+        if (_player.State is VLCState.Stopped)
+            return;
+        
+        _player.Stop();
+    }
 
     public void ChangeVolume(AudioVolume volume) => _player.Volume = volume.Value;
 
