@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace Motion2Gif;
+namespace AvaloniaApplication1.Views;
 
 public partial class MainWindow : Window
 {

@@ -1,0 +1,37 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:vm="using:Motion2Gif.ViewModels"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vlc="using:LibVLCSharp.Avalonia"
+        xmlns:local="clr-namespace:Motion2Gif.Controls"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        Width="600" Height="435"
+        x:Class="Motion2Gif.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Motion2Gif">
+    <Window.Styles>
+        <Style Selector="vlc|VideoView">
+        </Style>
+    </Window.Styles>
+    
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button Content="Choose a file" Command="{Binding OpenVideoFileCmd}" />
+        </StackPanel>
+
+        <vlc:VideoView Grid.Row="1" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <local:MediaTimeline 
+                             Grid.Row="2"
+                             MinHeight="35"
+                             CurrentTimePosition="{Binding CurrentPosition}"
+                             MediaDuration="{Binding MediaDuration}"
+                             >
+        </local:MediaTimeline>
+        <StackPanel Grid.Row="3" Orientation="Horizontal">
+            <Button Content="Pause" Command="{Binding PauseCmd}" />
+            <Button Content="Play" Command="{Binding PlayCmd}" />
+            <Button Content="Stop" Command="{Binding StopCmd}" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Motion2Gif.ViewModels;
+using Motion2Gif.Views;
 
 namespace Motion2Gif;
 
