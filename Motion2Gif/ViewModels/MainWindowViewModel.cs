@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -61,6 +62,16 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         
         var fileDescription = await PlayerService.OpenAsync(path);
+        MediaDuration = fileDescription.Duration;
+        CurrentPosition = new TimeMs(0);
+    }
+
+    public async Task OpenVideoFile(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        var fileDescription = await PlayerService.OpenAsync(new Uri(path));
         MediaDuration = fileDescription.Duration;
         CurrentPosition = new TimeMs(0);
     }

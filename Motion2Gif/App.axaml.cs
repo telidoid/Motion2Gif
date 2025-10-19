@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using Motion2Gif.Other;
 using Motion2Gif.ViewModels;
 using Motion2Gif.Views;
@@ -24,7 +26,10 @@ public partial class App : Application
             if (desktop.Args != null)
             {
                 foreach (var arg in desktop.Args)
-                    Log.Information($"Desktop arg: {arg}");
+                {
+                    var vm = desktop.MainWindow.DataContext as MainWindowViewModel;
+                    _ = Dispatcher.UIThread.InvokeAsync(() => vm!.OpenVideoFile(arg));
+                }
             }
         }
 
