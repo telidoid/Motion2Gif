@@ -21,13 +21,15 @@
         </StackPanel>
 
         <vlc:VideoView Grid.Row="1" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        
         <local:MediaTimeline 
-                             Grid.Row="2"
-                             MinHeight="35"
-                             CurrentTimePosition="{Binding CurrentPosition}"
-                             MediaDuration="{Binding MediaDuration}"
-                             >
+            Grid.Row="2"
+            MinHeight="35"
+            CurrentTimePosition="{Binding CurrentPosition}"
+            MediaDuration="{Binding MediaDuration}"
+        >
         </local:MediaTimeline>
+        
         <StackPanel Grid.Row="3" Orientation="Horizontal">
             <Button Content="Pause" Command="{Binding PauseCmd}" />
             <Button Content="Play" Command="{Binding PlayCmd}" />
