@@ -7,6 +7,7 @@ public record struct TimeMs(long Value)
     public static TimeMs FromDip(double value, double length, TimeMs timeMs)
     {
         var totalMs = Math.Max(0L, timeMs.Value); // защита от нулей/отрицательных
+       
         if (length <= 0 || totalMs == 0)
             return new TimeMs(0);
         

@@ -63,8 +63,8 @@ public class MediaTimeline : Control
 
         var marker = GetPositionMarker();
         var pointZero = new Point(0, height / 2f);
-        context.DrawLine(new Pen(Brushes.GreenYellow, height), pointZero, marker.Box.Center); // progression
-        context.DrawRectangle(Brushes.Red, null, marker.Box); // marker
+        context.DrawLine(new Pen(Brushes.GreenYellow, height), pointZero, marker.Box.Center);
+        context.DrawRectangle(Brushes.Red, null, marker.Box);
     }
 
     private PositionMarker GetPositionMarker()
@@ -82,11 +82,12 @@ public class MediaTimeline : Control
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         var point = e.GetCurrentPoint(this);
-        
-        _timeline.Pressed(point.Position, () =>
+
+        if (_timeline.TryPress(point.Position))
         {
+            e.Pointer.Capture(this);
             CurrentTimePosition = TimeMs.FromDip(point.Position.X, Bounds.Width, MediaDuration);
-        });
+        }
 
         base.OnPointerPressed(e);
     }
@@ -95,26 +96,19 @@ public class MediaTimeline : Control
     {
         var point = e.GetCurrentPoint(this);
         
-        _timeline.Moved(point.Position, () =>
+        if (_timeline.TryMove(point.Position))
         {
+            e.Pointer.Capture(this);
             CurrentTimePosition = TimeMs.FromDip(point.Position.X, Bounds.Width, MediaDuration);
-        });
+        }
 
         base.OnPointerMoved(e);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        var point = e.GetCurrentPoint(this);
-
-        _timeline.Unpressed(point.Position);
-        
-        base.OnPointerReleased(e);
-    }
-
-    protected override void OnPointerExited(PointerEventArgs e)
-    {
+        e.Pointer.Capture(null);
         _timeline.Release();
-        base.OnPointerExited(e);
+        base.OnPointerReleased(e);
     }
 }

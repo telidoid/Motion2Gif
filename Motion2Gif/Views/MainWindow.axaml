@@ -6,7 +6,7 @@
         xmlns:vlc="using:LibVLCSharp.Avalonia"
         xmlns:local="clr-namespace:Motion2Gif.Controls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Width="600" Height="435"
+        Width="600" Height="453"
         x:Class="Motion2Gif.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Motion2Gif"
