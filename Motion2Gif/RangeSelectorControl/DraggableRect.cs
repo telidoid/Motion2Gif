@@ -1,21 +1,18 @@
 ﻿using Avalonia;
-using Avalonia.Media;
-using Serilog;
 
 namespace Motion2Gif.RangeSelectorControl;
 
-public record DraggableRect(Rect Geometry)
+public record DraggableRect
 {
-    private bool _pressed = false;
-    
-    public bool TryPress(Point point)
+    private bool _pressed;
+
+    public bool TryPress(Point point, Rect rect)
     {
-        _pressed = Geometry.Contains(point);
-        Log.Information(_pressed.ToString());
+        _pressed = rect.Contains(point);
         return _pressed;
     }
 
-    public bool TryDrag(Point point) => _pressed;
+    public bool TryDrag() => _pressed;
     
     public void Release() => _pressed = false;
 }

@@ -22,6 +22,10 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private TimeMs _mediaDuration = new(0);
     [ObservableProperty] private int _volume = 100;
     [ObservableProperty] private string _displayedTime = "00:00 / 00:00";
+
+    [ObservableProperty] private TimeMs _trimStart = new(0);
+    [ObservableProperty] private TimeMs _trimEnd = new(2_000);
+    [ObservableProperty] private TimeMs _selectorMin = new(0);
     
     private bool _suppressPlayerSeek;
     

@@ -29,10 +29,16 @@
             MinHeight="35"
             CurrentTimePosition="{Binding CurrentPosition}"
             MediaDuration="{Binding MediaDuration}"
-        >
-        </mediaTimelineControl:MediaTimeline>
+        />
         
-        <rangeSelectorControl:TimeRangeSelector Grid.Row="2" />
+        <rangeSelectorControl:TimeRangeSelector 
+            Grid.Row="2" 
+            MinHeight="35"
+            Min="{Binding SelectorMin}"
+            Max="{Binding MediaDuration}"
+            TrimStart="{Binding TrimStart}"
+            TrimEnd="{Binding TrimEnd}"
+        />
         
         <StackPanel Grid.Row="3" Orientation="Horizontal">
             <Button Content="TogglePlay" Command="{Binding TogglePlayCmd}" />
