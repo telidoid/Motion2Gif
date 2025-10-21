@@ -4,7 +4,8 @@
         xmlns:vm="using:Motion2Gif.ViewModels"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vlc="using:LibVLCSharp.Avalonia"
-        xmlns:local="clr-namespace:Motion2Gif.Controls"
+        xmlns:mediaTimelineControl="clr-namespace:Motion2Gif.MediaTimelineControl"
+        xmlns:rangeSelectorControl="clr-namespace:Motion2Gif.RangeSelectorControl"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="600" Height="453"
         x:Class="Motion2Gif.Views.MainWindow"
@@ -23,13 +24,15 @@
 
         <vlc:VideoView Grid.Row="1" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         
-        <local:MediaTimeline 
+        <mediaTimelineControl:MediaTimeline 
             Grid.Row="2"
             MinHeight="35"
             CurrentTimePosition="{Binding CurrentPosition}"
             MediaDuration="{Binding MediaDuration}"
         >
-        </local:MediaTimeline>
+        </mediaTimelineControl:MediaTimeline>
+        
+        <rangeSelectorControl:TimeRangeSelector Grid.Row="2" />
         
         <StackPanel Grid.Row="3" Orientation="Horizontal">
             <Button Content="TogglePlay" Command="{Binding TogglePlayCmd}" />

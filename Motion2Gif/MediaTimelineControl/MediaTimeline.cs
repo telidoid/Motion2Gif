@@ -4,8 +4,10 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
+using Motion2Gif.Controls;
+using Motion2Gif.Other;
 
-namespace Motion2Gif.Controls;
+namespace Motion2Gif.MediaTimelineControl;
 
 // ReSharper disable once MemberCanBePrivate.
 public class MediaTimeline : Control
@@ -69,7 +71,7 @@ public class MediaTimeline : Control
 
     private PositionMarker GetPositionMarker()
     {
-        var nextXPos = CurrentTimePosition.Value * Bounds.Width / Math.Max(1, MediaDuration.Value);
+        var nextXPos = CurrentTimePosition.ToDip(MediaDuration, Bounds.Width);
         
         if (CurrentTimePosition == MediaDuration && CurrentTimePosition is not {Value: 0})
             nextXPos = Bounds.Width;

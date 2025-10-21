@@ -1,17 +1,17 @@
 ﻿using System;
 
-namespace Motion2Gif.Controls;
+namespace Motion2Gif.Other;
 
 public record struct TimeMs(long Value)
 {
-    public static TimeMs FromDip(double value, double length, TimeMs timeMs)
+    public static TimeMs FromDip(double dip, double width, TimeMs duration)
     {
-        var totalMs = Math.Max(0L, timeMs.Value); // защита от нулей/отрицательных
+        var totalMs = Math.Max(0L, duration.Value); // защита от нулей/отрицательных
        
-        if (length <= 0 || totalMs == 0)
+        if (width <= 0 || totalMs == 0)
             return new TimeMs(0);
         
-        var ratio = value / length; // доля пройденного пути по ширине [0..1]
+        var ratio = dip / width; // доля пройденного пути по ширине [0..1]
         var ms = Math.Clamp(ratio, 0.0, 1.0) * totalMs; // кламп доли и перевод в миллисекунды
 
         return new TimeMs((long)Math.Round(ms));
@@ -30,4 +30,7 @@ public static class TimeMsExtensions
             $"{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}" : 
             $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
     }
+
+    public static double ToDip(this TimeMs timeMs, TimeMs duration, double width) =>
+        timeMs.Value * width / Math.Max(1, duration.Value);
 }

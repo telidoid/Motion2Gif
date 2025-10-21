@@ -1,7 +1,6 @@
-﻿using System;
-using Avalonia;
+﻿using Avalonia;
 
-namespace Motion2Gif.Controls;
+namespace Motion2Gif.MediaTimelineControl;
 
 public record struct Timeline(Rect Box)
 {

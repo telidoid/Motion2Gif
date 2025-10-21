@@ -2,9 +2,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Motion2Gif.Controls"
+        xmlns:mediaTimelineControl="clr-namespace:Motion2Gif.MediaTimelineControl"
+        xmlns:rangeSelectorControl="clr-namespace:Motion2Gif.RangeSelectorControl"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Motion2Gif.Views.MediaTimelinePreview"
-        Title="MediaTimelinePreview">
-    <local:MediaTimeline></local:MediaTimeline>
+        Title="MediaTimelinePreview" Background="Gray">
+    <Grid RowDefinitions="Auto" Background="Gray" Margin="0 10 0 0">
+        <mediaTimelineControl:MediaTimeline Grid.Row="0" />
+        <rangeSelectorControl:TimeRangeSelector Grid.Row="0" /> 
+    </Grid>
 </Window>
