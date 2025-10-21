@@ -29,15 +29,17 @@
             MinHeight="35"
             CurrentTimePosition="{Binding CurrentPosition}"
             MediaDuration="{Binding MediaDuration}"
+            Margin="35 0"
         />
         
-        <rangeSelectorControl:TimeRangeSelector 
+        <rangeSelectorControl:TimeRangeSelector
             Grid.Row="2" 
             MinHeight="35"
             Min="{Binding SelectorMin}"
             Max="{Binding MediaDuration}"
             TrimStart="{Binding TrimStart}"
             TrimEnd="{Binding TrimEnd}"
+            Margin="35 0"
         />
         
         <StackPanel Grid.Row="3" Orientation="Horizontal">

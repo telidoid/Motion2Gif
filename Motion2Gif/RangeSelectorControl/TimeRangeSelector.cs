@@ -4,6 +4,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
 using Motion2Gif.Other;
+using Serilog;
 
 
 namespace Motion2Gif.RangeSelectorControl;
@@ -97,15 +98,17 @@ public class TimeRangeSelector : Control
     
     public override void Render(DrawingContext context)
     {
-        context.DrawRectangle(Brushes.Blue, null, new Rect(TrimStart.ToDip(Max, Bounds.Width), 0, RectWidth, RectHeight));
-        context.DrawRectangle(Brushes.Black, null, new Rect(TrimEnd.ToDip(Max, Bounds.Width), 0, RectWidth, RectHeight));
+        var brush1 = new SolidColorBrush(Colors.Blue, 0.5);
+        var brush2 = new SolidColorBrush(Colors.Magenta, 0.5);
+        context.DrawRectangle(brush1, null, new Rect(TrimStart.ToDip(Max, Bounds.Width) - RectWidth, 0, RectWidth, RectHeight));
+        context.DrawRectangle(brush2, null, new Rect(TrimEnd.ToDip(Max, Bounds.Width), 0, RectWidth, RectHeight));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         var point = e.GetPosition(this);
-
-        if (!_leftHandle.TryPress(point, new Rect(TrimStart.ToDip(Max, Bounds.Width), 0, RectWidth, RectHeight)))
+        
+        if (!_leftHandle.TryPress(point, new Rect(TrimStart.ToDip(Max, Bounds.Width) - RectWidth, 0, RectWidth, RectHeight)))
             _rightHandle.TryPress(point, new Rect(TrimEnd.ToDip(Max, Bounds.Width), 0, RectWidth, RectHeight));
         
         base.OnPointerPressed(e);
@@ -117,7 +120,7 @@ public class TimeRangeSelector : Control
 
         if (_leftHandle.TryDrag())
         {
-            var newTimePosition = TimeMs.FromDip(point.X - RectWidth/2, Bounds.Width, Max);
+            var newTimePosition = TimeMs.FromDip(point.X - RectWidth/2 + RectWidth, Bounds.Width, Max);
 
             if (newTimePosition < new TimeMs(Value: TrimEnd.Value - MinimumTimeRangeBetweenHandles))
                 TrimStart = newTimePosition;

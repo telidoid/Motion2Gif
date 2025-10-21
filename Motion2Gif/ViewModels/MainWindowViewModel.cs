@@ -96,4 +96,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     partial void OnVolumeChanged(int value) => 
         PlayerService.ChangeVolume(AudioVolume.Create(value));
+
+    partial void OnTrimEndChanged(TimeMs value)
+    {
+        Log.Information($"TrimEnd: {TimeSpan.FromMilliseconds(value.Value)}");
+    }
+    
+    partial void OnTrimStartChanged(TimeMs value)
+    {
+        Log.Information($"TrimStart: {TimeSpan.FromMilliseconds(value.Value)}");
+    }
 }
