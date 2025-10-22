@@ -24,23 +24,30 @@
 
         <vlc:VideoView Grid.Row="1" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         
-        <mediaTimelineControl:MediaTimeline 
-            Grid.Row="2"
-            MinHeight="35"
-            CurrentTimePosition="{Binding CurrentPosition}"
-            MediaDuration="{Binding MediaDuration}"
-            Margin="20 0"
-        />
-        
-        <rangeSelectorControl:TimeRangeSelector
-            Grid.Row="2" 
-            MinHeight="35"
-            Min="{Binding SelectorMin}"
-            Max="{Binding MediaDuration}"
-            TrimStart="{Binding TrimStart}"
-            TrimEnd="{Binding TrimEnd}"
-            Margin="20 0"
-        />
+        <Panel Grid.Row="2" Margin="20 0">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
+                <ScrollViewer.Styles>
+                    <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
+                        <Setter Property="ClipToBounds" Value="False"/>
+                    </Style>
+                </ScrollViewer.Styles>
+                
+                <Grid Height="35" Margin="0 0 0 15" ClipToBounds="False" Background="Transparent">
+                    <mediaTimelineControl:MediaTimeline 
+                        CurrentTimePosition="{Binding CurrentPosition}"
+                        MediaDuration="{Binding MediaDuration}"
+                    />
+                    
+                    <rangeSelectorControl:TimeRangeSelector
+                        Min="{Binding SelectorMin}"
+                        Max="{Binding MediaDuration}"
+                        TrimStart="{Binding TrimStart}"
+                        TrimEnd="{Binding TrimEnd}"
+                        ZIndex="1"
+                    />
+                </Grid>
+            </ScrollViewer>
+        </Panel>
         
         <StackPanel Grid.Row="3" Orientation="Horizontal">
             <Button Content="TogglePlay" Command="{Binding TogglePlayCmd}" />
