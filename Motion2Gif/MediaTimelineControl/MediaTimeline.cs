@@ -52,19 +52,13 @@ public class MediaTimeline : Control
     public MediaTimeline()
     {
         AffectsRender<MediaTimeline>(CurrentTimePositionProperty, MediaDurationProperty);
-        _timeline =  new Timeline(new Rect(0, 0, Bounds.Width, Bounds.Height));
     }
     
     public override void Render(DrawingContext context)
     {
-        context.FillRectangle(Brushes.Gray, Bounds);
-        
-        _timeline = _timeline with { Box = new Rect(0, 0, Bounds.Width, Bounds.Height )};
-        context.DrawRectangle(Brushes.Beige, null, _timeline.Box);
-
         var marker = GetPositionMarker();
-        var pointZero = new Point(0, Bounds.Height / 2f);
-        context.DrawLine(new Pen(Brushes.GreenYellow, Bounds.Height), pointZero, marker.Box.Center);
+        context.DrawRectangle(Brushes.White, null, new Rect(0, 0, Bounds.Width, Bounds.Height));
+        context.DrawRectangle(Brushes.Green, null, new Rect(0, 0, marker.Box.Left, Bounds.Height));
         context.DrawRectangle(Brushes.Red, null, marker.Box);
     }
 
@@ -75,41 +69,35 @@ public class MediaTimeline : Control
         if (CurrentTimePosition == MediaDuration && CurrentTimePosition is not {Value: 0})
             nextXPos = Bounds.Width;
 
-        var width = 1;
+        const int width = 1;
         
-        return new PositionMarker(new Rect(nextXPos-(width/2f), 0, width, Bounds.Height));
+        return new PositionMarker(new Rect(nextXPos, 0, width, Bounds.Height));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        var point = e.GetCurrentPoint(this);
+        var position = e.GetPosition(this);
 
-        if (_timeline.TryPress(point.Position))
-        {
-            e.Pointer.Capture(this);
-            CurrentTimePosition = TimeMs.FromDip(point.Position.X, Bounds.Width, MediaDuration);
-        }
+        if (_timeline.TryPress(position, new Rect(0, 0, Bounds.Width, Bounds.Height)))
+            CurrentTimePosition = TimeMs.FromDip(position.X, Bounds.Width, MediaDuration);
 
         base.OnPointerPressed(e);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        var point = e.GetCurrentPoint(this);
+        var position = e.GetPosition(this);
         
-        if (_timeline.TryMove(point.Position))
-        {
-            e.Pointer.Capture(this);
-            CurrentTimePosition = TimeMs.FromDip(point.Position.X, Bounds.Width, MediaDuration);
-        }
+        if (_timeline.TryMove())
+            CurrentTimePosition = TimeMs.FromDip(position.X, Bounds.Width, MediaDuration);
 
         base.OnPointerMoved(e);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        e.Pointer.Capture(null);
         _timeline.Release();
+        
         base.OnPointerReleased(e);
     }
 }

@@ -24,7 +24,7 @@
 
         <vlc:VideoView Grid.Row="1" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         
-        <Panel Grid.Row="2" Margin="20 0">
+        <Grid Grid.Row="2" Margin="20 0">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
                 <ScrollViewer.Styles>
                     <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
@@ -32,13 +32,19 @@
                     </Style>
                 </ScrollViewer.Styles>
                 
-                <Grid Height="35" Margin="0 0 0 15" ClipToBounds="False" Background="Transparent">
-                    <mediaTimelineControl:MediaTimeline 
+                <Grid Height="70" 
+                      RowDefinitions="*, *" 
+                      ClipToBounds="False"
+                      Background="Transparent">
+                    
+                    <mediaTimelineControl:TimelineControl
+                        Grid.Row="0"
                         CurrentTimePosition="{Binding CurrentPosition}"
                         MediaDuration="{Binding MediaDuration}"
                     />
                     
                     <rangeSelectorControl:TimeRangeSelector
+                        Grid.Row="1"
                         Min="{Binding SelectorMin}"
                         Max="{Binding MediaDuration}"
                         TrimStart="{Binding TrimStart}"
@@ -46,9 +52,15 @@
                         ClipToBounds="False"
                         ZIndex="1"
                     />
+                    
+                    <mediaTimelineControl:MediaTimeline
+                        Grid.Row="1"
+                        CurrentTimePosition="{Binding CurrentPosition}"
+                        MediaDuration="{Binding MediaDuration}"
+                    />
                 </Grid>
             </ScrollViewer>
-        </Panel>
+        </Grid>
         
         <StackPanel Grid.Row="3" Orientation="Horizontal">
             <Button Content="TogglePlay" Command="{Binding TogglePlayCmd}" />

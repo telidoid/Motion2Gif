@@ -39,6 +39,13 @@ public static class TimeMsExtensions
             : $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
     }
 
+    public static string NewFormatted(this TimeMs timeMs)
+    {
+        var ts = timeMs.TimeStamp();
+
+        return ts.Hours == 0 ? $"{ts.Minutes:00}:{ts.Seconds:00}" : $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
+    }
+
     public static double ToDip(this TimeMs timeMs, TimeMs duration, double width) =>
         timeMs.Value * width / Math.Max(1, duration.Value);
 }
