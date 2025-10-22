@@ -4,7 +4,6 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
 using Motion2Gif.Other;
-using Serilog;
 
 
 namespace Motion2Gif.RangeSelectorControl;
@@ -82,8 +81,7 @@ public class TimeRangeSelector : Control
     private readonly DraggableRect _rightHandle = new();
 
     private const double RectWidth = 10;
-    private const double RectHeight = 35;
-    private const long MinimumTimeRangeBetweenHandles = 1_000; // in ms
+    private const long MinimumTimeRangeBetweenHandles = 100; // in ms
     
     private static readonly Cursor ResizeEwCursor = new(StandardCursorType.SizeWestEast);
     private static readonly Cursor DefaultCursor  = new(StandardCursorType.Arrow);
@@ -175,7 +173,7 @@ public class TimeRangeSelector : Control
         base.OnPointerExited(e);
     }
     
-    private Rect GetLeftRect() => new(TrimStart.ToDip(Max, Bounds.Width) - RectWidth, 0, RectWidth, RectHeight);
+    private Rect GetLeftRect() => new(TrimStart.ToDip(Max, Bounds.Width) - RectWidth, 0, RectWidth, Bounds.Height);
 
-    private Rect GetRightRect() => new(TrimEnd.ToDip(Max, Bounds.Width), 0, RectWidth, RectHeight);
+    private Rect GetRightRect() => new(TrimEnd.ToDip(Max, Bounds.Width), 0, RectWidth, Bounds.Height);
 }

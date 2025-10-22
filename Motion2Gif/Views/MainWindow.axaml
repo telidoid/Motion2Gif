@@ -43,6 +43,7 @@
                         Max="{Binding MediaDuration}"
                         TrimStart="{Binding TrimStart}"
                         TrimEnd="{Binding TrimEnd}"
+                        ClipToBounds="False"
                         ZIndex="1"
                     />
                 </Grid>

@@ -1,5 +1,4 @@
-﻿using System;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
@@ -12,6 +11,8 @@ namespace Motion2Gif.MediaTimelineControl;
 // ReSharper disable once MemberCanBePrivate.
 public class MediaTimeline : Control
 {
+    #region Properties
+
     public static readonly DirectProperty<MediaTimeline, TimeMs> CurrentTimePositionProperty =
         AvaloniaProperty.RegisterDirect<MediaTimeline, TimeMs>(
             nameof(CurrentTimePosition),
@@ -20,8 +21,6 @@ public class MediaTimeline : Control
             defaultBindingMode: BindingMode.TwoWay,
             enableDataValidation: false
             );
-    
-    private TimeMs _currentTimePosition;
 
     public TimeMs CurrentTimePosition
     {
@@ -38,34 +37,34 @@ public class MediaTimeline : Control
             enableDataValidation: false
             );
 
-    private TimeMs _mediaDuration;
-
     public TimeMs MediaDuration
     {
         get => _mediaDuration;
         set => SetAndRaise(MediaDurationProperty, ref _mediaDuration, value);
     }
     
-    private const float height = 35f;
+    #endregion
+    
+    private TimeMs _currentTimePosition;
+    private TimeMs _mediaDuration;
     private Timeline _timeline;
     
     public MediaTimeline()
     {
-        _timeline =  new Timeline(new Rect(0, 0, Bounds.Width, height));
-        
         AffectsRender<MediaTimeline>(CurrentTimePositionProperty, MediaDurationProperty);
+        _timeline =  new Timeline(new Rect(0, 0, Bounds.Width, Bounds.Height));
     }
     
     public override void Render(DrawingContext context)
     {
         context.FillRectangle(Brushes.Gray, Bounds);
         
-        _timeline = _timeline with { Box = new Rect(0, 0, Bounds.Width, height )};
+        _timeline = _timeline with { Box = new Rect(0, 0, Bounds.Width, Bounds.Height )};
         context.DrawRectangle(Brushes.Beige, null, _timeline.Box);
 
         var marker = GetPositionMarker();
-        var pointZero = new Point(0, height / 2f);
-        context.DrawLine(new Pen(Brushes.GreenYellow, height), pointZero, marker.Box.Center);
+        var pointZero = new Point(0, Bounds.Height / 2f);
+        context.DrawLine(new Pen(Brushes.GreenYellow, Bounds.Height), pointZero, marker.Box.Center);
         context.DrawRectangle(Brushes.Red, null, marker.Box);
     }
 
@@ -78,7 +77,7 @@ public class MediaTimeline : Control
 
         var width = 1;
         
-        return new PositionMarker(new Rect(nextXPos-(width/2f), 0, width, height));
+        return new PositionMarker(new Rect(nextXPos-(width/2f), 0, width, Bounds.Height));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
