@@ -98,8 +98,8 @@ public class TimeRangeSelector : Control
     
     public override void Render(DrawingContext context)
     {
-        var brush1 = new SolidColorBrush(Colors.Blue, 0.5);
-        var brush2 = new SolidColorBrush(Colors.Magenta, 0.5);
+        var brush1 = new SolidColorBrush(Colors.Blue, 0.8);
+        var brush2 = new SolidColorBrush(Colors.Magenta, 0.8);
         context.DrawRectangle(brush1, null, new Rect(TrimStart.ToDip(Max, Bounds.Width) - RectWidth, 0, RectWidth, RectHeight));
         context.DrawRectangle(brush2, null, new Rect(TrimEnd.ToDip(Max, Bounds.Width), 0, RectWidth, RectHeight));
     }
