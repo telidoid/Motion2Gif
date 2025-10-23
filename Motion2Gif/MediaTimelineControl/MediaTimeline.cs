@@ -69,7 +69,7 @@ public class MediaTimeline : Control
         if (CurrentTimePosition == MediaDuration && CurrentTimePosition is not {Value: 0})
             nextXPos = Bounds.Width;
 
-        const int width = 1;
+        const int width = 2;
         
         return new PositionMarker(new Rect(nextXPos, 0, width, Bounds.Height));
     }

@@ -53,6 +53,7 @@ public class TimelineControl : Control
     private TimeMs _mediaDuration;
 
     private const double TimeScaleHeight = 15;
+    private const double StepDip = 100;
 
 
     public TimelineControl()
@@ -62,31 +63,50 @@ public class TimelineControl : Control
         MediaDuration = new TimeMs(500_000_000);
     }
 
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        var propertyChanged = change.Property.Name is nameof(MediaDuration) or nameof(Bounds);
+
+        if (propertyChanged)
+            UpdateTimeline();
+        
+        base.OnPropertyChanged(change);
+    }
+
+    private void UpdateTimeline()
+    {
+        Log.Information($"New props: MediaDuration: {MediaDuration} | " +
+                        $"CurrentTimePosition: {CurrentTimePosition} | " +
+                        $"Bounds width: {Bounds.Width}");
+
+        var divisionCount = Bounds.Width / StepDip;
+    }
+
     public override void Render(DrawingContext context)
     {
         context.DrawRectangle(Brushes.Aqua, null, Bounds);
 
         context.DrawRectangle(Brushes.White, null, new Rect(0, 0, Bounds.Width, TimeScaleHeight));
 
-        Log.Information($"MediaDuration: {MediaDuration}, CurrentTimePosition: {CurrentTimePosition}");
-
-        var step = Bounds.Width / 100; // 100 is 100 dip
+        var step = Bounds.Width / 100;
 
         var currentDip = 0d;
-        var timeSteps = new List<(TimeMs, double)>();
+        var timeSteps = new List<TimeMs>();
         
-        while (currentDip <= Bounds.Width && MediaDuration.Value > 0)
+        while (currentDip < Bounds.Width && MediaDuration.Value > 0)
         {
-            currentDip += 100;
             var newTimeStep = TimeMs.FromDip(currentDip, Bounds.Width, MediaDuration);
-            Log.Information($"timeStep: {newTimeStep}");
-            timeSteps.Add((newTimeStep, currentDip));
+            currentDip += 100;
+            if (currentDip < 101) continue;
+            if (currentDip > Bounds.Width + 70) continue;
+            
+            timeSteps.Add(newTimeStep);
         }
 
         foreach (var ts in timeSteps)
         {
             var ft = new FormattedText(
-                ts.Item1.NewFormatted(),
+                ts.NewFormatted(),
                 CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
                 Typeface.Default,
@@ -94,9 +114,10 @@ public class TimelineControl : Control
                 Brushes.Red);
 
             var w = ft.Width;
-            var x = Math.Round(ts.Item1.ToDip(MediaDuration, Bounds.Width) - w / 2.0) + 0.5;
+            var x = Math.Round(ts.ToDip(MediaDuration, Bounds.Width) - w / 2.0);
 
             context.DrawText(ft, new Point(x, 0));
+            context.DrawLine(new Pen(Brushes.Red, 2), new Point(ts.ToDip(MediaDuration, Bounds.Width), 0), new Point(ts.ToDip(MediaDuration, Bounds.Width), 100));
         }
         
         context.DrawText(
