@@ -53,14 +53,24 @@ public class TimelineControl : Control
     private TimeMs _mediaDuration;
 
     private const double TimeScaleHeight = 15;
-    private const double StepDip = 100;
-
+    private const double StepInDip = 100;
+    private List<TimeMs> _timePoints = [];
 
     public TimelineControl()
     {
         AffectsRender<TimelineControl>(MediaDurationProperty, CurrentTimePositionProperty);
         CurrentTimePosition = new TimeMs(10_000);
         MediaDuration = new TimeMs(500_000_000);
+    }
+    
+    public override void Render(DrawingContext context)
+    {
+        context.DrawRectangle(Brushes.White, null, new Rect(0, 0, Bounds.Width, TimeScaleHeight));
+
+        foreach (var timePoint in _timePoints)
+            DrawTimePoint(context, timePoint);
+
+        base.Render(context);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -69,67 +79,38 @@ public class TimelineControl : Control
 
         if (propertyChanged)
             UpdateTimeline();
-        
+
         base.OnPropertyChanged(change);
     }
 
     private void UpdateTimeline()
     {
-        Log.Information($"New props: MediaDuration: {MediaDuration} | " +
-                        $"CurrentTimePosition: {CurrentTimePosition} | " +
-                        $"Bounds width: {Bounds.Width}");
+        _timePoints = [];
 
-        var divisionCount = Bounds.Width / StepDip;
+        if (MediaDuration.Value == 0)
+            return;
+
+        var stepInMs = TimeMs.FromDip(StepInDip, Bounds.Width, MediaDuration);
+        var divisionCount = Bounds.Width / StepInDip;
+
+        for (var i = 1; i < divisionCount; i++)
+            _timePoints.Add(new TimeMs(stepInMs.Value * i));
     }
 
-    public override void Render(DrawingContext context)
+    private void DrawTimePoint(DrawingContext context, TimeMs timePoint)
     {
-        context.DrawRectangle(Brushes.Aqua, null, Bounds);
-
-        context.DrawRectangle(Brushes.White, null, new Rect(0, 0, Bounds.Width, TimeScaleHeight));
-
-        var step = Bounds.Width / 100;
-
-        var currentDip = 0d;
-        var timeSteps = new List<TimeMs>();
+        var text = new FormattedText(
+            timePoint.NewFormatted(),
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            Typeface.Default,
+            12,
+            Brushes.Black);
         
-        while (currentDip < Bounds.Width && MediaDuration.Value > 0)
-        {
-            var newTimeStep = TimeMs.FromDip(currentDip, Bounds.Width, MediaDuration);
-            currentDip += 100;
-            if (currentDip < 101) continue;
-            if (currentDip > Bounds.Width + 70) continue;
-            
-            timeSteps.Add(newTimeStep);
-        }
+        var dip = timePoint.ToDip(MediaDuration, Bounds.Width);
+        var x = Math.Round(dip - text.Width / 2.0);
 
-        foreach (var ts in timeSteps)
-        {
-            var ft = new FormattedText(
-                ts.NewFormatted(),
-                CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
-                Typeface.Default,
-                12,
-                Brushes.Red);
-
-            var w = ft.Width;
-            var x = Math.Round(ts.ToDip(MediaDuration, Bounds.Width) - w / 2.0);
-
-            context.DrawText(ft, new Point(x, 0));
-            context.DrawLine(new Pen(Brushes.Red, 2), new Point(ts.ToDip(MediaDuration, Bounds.Width), 0), new Point(ts.ToDip(MediaDuration, Bounds.Width), 100));
-        }
-        
-        context.DrawText(
-            new FormattedText(
-                $"Step: {step} dip\n" +
-                $"Duration: {MediaDuration.Value} ms\n" +
-                $"Duration: {MediaDuration.NewFormatted()}\n" +
-                $"", 
-                CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Typeface.Default, 16, Brushes.Chartreuse),
-            new Point(0, -100));
-
-        base.Render(context);
+        context.DrawText(text, new Point(x, 0));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
