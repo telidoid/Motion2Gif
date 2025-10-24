@@ -5,6 +5,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Motion2Gif.Controls;
 using Motion2Gif.Other;
+using Motion2Gif.Player;
+using Motion2Gif.VLC;
 using Serilog;
 
 namespace Motion2Gif.ViewModels;
@@ -15,6 +17,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IFilePickerService _filePickerService;
 
     public ICommand OpenVideoFileCmd { get; }
+    public ICommand ToggleMuteCmd { get; }
     public ICommand TogglePlayCmd { get; }
     public ICommand StopCmd { get; }
 
@@ -26,20 +29,17 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private TimeMs _trimStart = new(0);
     [ObservableProperty] private TimeMs _trimEnd = new(2_000);
     [ObservableProperty] private TimeMs _selectorMin = new(0);
-    
+
     private bool _suppressPlayerSeek;
-    
+
     public MainWindowViewModel(IFilePickerService filePickerService)
     {
         _filePickerService = filePickerService;
-        
+
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
+        ToggleMuteCmd = new RelayCommand(() => PlayerService.ToggleMute());
         TogglePlayCmd = new RelayCommand(() => PlayerService.TogglePlay());
-        StopCmd = new RelayCommand(() =>
-        {
-            CurrentPosition = new TimeMs(0);
-            PlayerService.Stop();
-        });
+        StopCmd = new RelayCommand(StopVideo);
 
         PlayerService.PlayerTimeChangedAction = l =>
         {
@@ -47,24 +47,30 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 _suppressPlayerSeek = true;
                 CurrentPosition = new TimeMs(l);
-                this.UpdateDisplayedTime();
+                UpdateDisplayedTime();
             }
             finally
             {
                 _suppressPlayerSeek = false;
             }
         };
-        
+
         PlayerService.ChangeVolume(AudioVolume.Create(Volume));
+    }
+
+    private void StopVideo()
+    {
+        CurrentPosition = new TimeMs(0);
+        PlayerService.Stop();
     }
 
     private async Task OnVideoFileOpened()
     {
         var path = await _filePickerService.Pick();
-        
+
         if (path == null)
             return;
-        
+
         var fileDescription = await PlayerService.OpenAsync(path);
         MediaDuration = fileDescription.Duration;
         CurrentPosition = new TimeMs(0);
@@ -82,26 +88,23 @@ public partial class MainWindowViewModel : ViewModelBase
 
     partial void OnCurrentPositionChanged(TimeMs value)
     {
-        if (_suppressPlayerSeek) 
+        if (_suppressPlayerSeek)
             return;
-        
+
         PlayerService.ChangeTimePosition(value.Value);
-        this.UpdateDisplayedTime();
+        UpdateDisplayedTime();
     }
 
-    private void UpdateDisplayedTime()
-    {
+    private void UpdateDisplayedTime() =>
         DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
-    }
 
-    partial void OnVolumeChanged(int value) => 
-        PlayerService.ChangeVolume(AudioVolume.Create(value));
+    partial void OnVolumeChanged(int value) => PlayerService.ChangeVolume(AudioVolume.Create(value));
 
     partial void OnTrimEndChanged(TimeMs value)
     {
         Log.Information($"TrimEnd: {TimeSpan.FromMilliseconds(value.Value)}");
     }
-    
+
     partial void OnTrimStartChanged(TimeMs value)
     {
         Log.Information($"TrimStart: {TimeSpan.FromMilliseconds(value.Value)}");

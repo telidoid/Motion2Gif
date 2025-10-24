@@ -9,6 +9,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using LibVLCSharp.Shared;
 using Motion2Gif.Other;
+using Motion2Gif.Player;
 using Serilog;
 
 namespace Motion2Gif.MediaTimelineControl;

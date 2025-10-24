@@ -1,4 +1,5 @@
 ﻿using Motion2Gif.Other;
+using Motion2Gif.Player;
 using Xunit;
 
 namespace Motion2GifTests;

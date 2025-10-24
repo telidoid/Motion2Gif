@@ -16,35 +16,34 @@
         <Style Selector="vlc|VideoView">
         </Style>
     </Window.Styles>
-    
+
     <Grid RowDefinitions="Auto,*,Auto,Auto">
         <StackPanel Grid.Row="0" Orientation="Horizontal">
             <Button Content="Choose a file" Command="{Binding OpenVideoFileCmd}" />
         </StackPanel>
 
         <vlc:VideoView Grid.Row="1" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        
+
         <Grid Grid.Row="2" Margin="20 0">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
                 <ScrollViewer.Styles>
                     <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
-                        <Setter Property="ClipToBounds" Value="False"/>
+                        <Setter Property="ClipToBounds" Value="False" />
                     </Style>
                 </ScrollViewer.Styles>
-                
+
                 <Grid x:Name="TimelineGrid"
                       Height="70"
                       Margin="0 0 0 20"
-                      RowDefinitions="*, *" 
+                      RowDefinitions="*, *"
                       ClipToBounds="False"
                       Background="Transparent">
-                    
+
                     <mediaTimelineControl:TimelineControl
                         Grid.Row="0"
                         CurrentTimePosition="{Binding CurrentPosition}"
-                        MediaDuration="{Binding MediaDuration}"
-                    />
-                    
+                        MediaDuration="{Binding MediaDuration}" />
+
                     <rangeSelectorControl:TimeRangeSelector
                         Grid.Row="1"
                         Min="{Binding SelectorMin}"
@@ -52,25 +51,40 @@
                         TrimStart="{Binding TrimStart}"
                         TrimEnd="{Binding TrimEnd}"
                         ClipToBounds="False"
-                        ZIndex="1"
-                    />
-                    
+                        ZIndex="1" />
+
                     <mediaTimelineControl:MediaTimeline
                         Grid.Row="1"
                         CurrentTimePosition="{Binding CurrentPosition}"
-                        MediaDuration="{Binding MediaDuration}"
-                    />
+                        MediaDuration="{Binding MediaDuration}" />
                 </Grid>
             </ScrollViewer>
         </Grid>
-        
+
         <StackPanel Grid.Row="3" Orientation="Horizontal">
-            <Button Content="TogglePlay" Command="{Binding TogglePlayCmd}" />
-            <Button Content="Stop" Command="{Binding StopCmd}" />
-            <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" />
+            <Button Command="{Binding TogglePlayCmd}">
+                <PathIcon Data="{StaticResource play_regular}" />
+            </Button>
+
+            <Button Command="{Binding StopCmd}">
+                <PathIcon Data="{StaticResource stop_regular}"></PathIcon>
+            </Button>
+
             <TextBlock VerticalAlignment="Center" Text="{Binding DisplayedTime}" />
-            <Button Content="Zoom +" Click="ZoomIn_OnClick"/>
-            <Button Content="Zoom -" Click="ZoomOut_OnClick"/>
+            
+            <Button Click="ZoomIn_OnClick">
+                <PathIcon Data="{StaticResource zoom_in_regular}" />
+            </Button>
+
+            <Button Click="ZoomOut_OnClick">
+                <PathIcon Data="{StaticResource zoom_out_regular}" />
+            </Button>
+            
+            <ToggleButton Command="{Binding ToggleMuteCmd}">
+                <PathIcon Data="{StaticResource speaker_regular}"></PathIcon>
+            </ToggleButton>
+
+            <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" />
         </StackPanel>
     </Grid>
 </Window>

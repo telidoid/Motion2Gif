@@ -2,23 +2,10 @@
 using System.Threading.Tasks;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
-using Motion2Gif.Controls;
-using Serilog;
+using Motion2Gif.Other;
+using Motion2Gif.Player;
 
-namespace Motion2Gif.Other;
-
-public record VideoFileDescription(string Name, TimeMs Duration);
-
-public interface IVideoPlayerService
-{
-    void AttachPlayer(VideoView videoView);
-    Task<VideoFileDescription> OpenAsync(Uri uri);
-    void TogglePlay();
-    void Stop();
-    void ChangeTimePosition(long timePosition);
-    void ChangeVolume(AudioVolume volume);
-    Action<long> PlayerTimeChangedAction { get; set; }
-}
+namespace Motion2Gif.VLC;
 
 public class VideoPlayerService : IVideoPlayerService, IDisposable
 {
@@ -58,6 +45,8 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
                 break;
         }
     }
+
+    public void ToggleMute() => _player.ToggleMute();
 
     public void Stop()
     {

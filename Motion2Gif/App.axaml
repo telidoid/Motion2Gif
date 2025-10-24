@@ -6,5 +6,6 @@
 
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://Motion2Gif/Icons.axaml"></StyleInclude>
     </Application.Styles>
 </Application>

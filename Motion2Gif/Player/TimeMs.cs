@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Motion2Gif.Other;
+namespace Motion2Gif.Player;
 
 public readonly record struct TimeMs(long Value)
     : IComparable<TimeMs>, IComparisonOperators<TimeMs, TimeMs, bool>

@@ -4,6 +4,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
 using Motion2Gif.Other;
+using Motion2Gif.Player;
 
 
 namespace Motion2Gif.RangeSelectorControl;
