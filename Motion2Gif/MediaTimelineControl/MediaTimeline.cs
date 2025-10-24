@@ -1,15 +1,18 @@
-﻿using System;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
+using Motion2Gif.Controls;
+using Motion2Gif.Other;
 
-namespace Motion2Gif.Controls;
+namespace Motion2Gif.MediaTimelineControl;
 
 // ReSharper disable once MemberCanBePrivate.
 public class MediaTimeline : Control
 {
+    #region Properties
+
     public static readonly DirectProperty<MediaTimeline, TimeMs> CurrentTimePositionProperty =
         AvaloniaProperty.RegisterDirect<MediaTimeline, TimeMs>(
             nameof(CurrentTimePosition),
@@ -18,8 +21,6 @@ public class MediaTimeline : Control
             defaultBindingMode: BindingMode.TwoWay,
             enableDataValidation: false
             );
-    
-    private TimeMs _currentTimePosition;
 
     public TimeMs CurrentTimePosition
     {
@@ -36,85 +37,67 @@ public class MediaTimeline : Control
             enableDataValidation: false
             );
 
-    private TimeMs _mediaDuration;
-
     public TimeMs MediaDuration
     {
         get => _mediaDuration;
         set => SetAndRaise(MediaDurationProperty, ref _mediaDuration, value);
     }
     
-    private const float height = 35f;
+    #endregion
+    
+    private TimeMs _currentTimePosition;
+    private TimeMs _mediaDuration;
     private Timeline _timeline;
     
     public MediaTimeline()
     {
-        _timeline =  new Timeline(new Rect(0, 0, Bounds.Width, height));
-        
         AffectsRender<MediaTimeline>(CurrentTimePositionProperty, MediaDurationProperty);
     }
     
     public override void Render(DrawingContext context)
     {
-        context.FillRectangle(Brushes.Gray, Bounds);
-        
-        _timeline = _timeline with { Box = new Rect(0, 0, Bounds.Width, height )};
-        context.DrawRectangle(Brushes.Beige, null, _timeline.Box);
-
         var marker = GetPositionMarker();
-        var pointZero = new Point(0, height / 2f);
-        context.DrawLine(new Pen(Brushes.GreenYellow, height), pointZero, marker.Box.Center); // progression
-        context.DrawRectangle(Brushes.Red, null, marker.Box); // marker
+        context.DrawRectangle(Brushes.White, null, new Rect(0, 0, Bounds.Width, Bounds.Height));
+        context.DrawRectangle(Brushes.Green, null, new Rect(0, 0, marker.Box.Left, Bounds.Height));
+        context.DrawRectangle(Brushes.Red, null, marker.Box);
     }
 
     private PositionMarker GetPositionMarker()
     {
-        var nextXPos = CurrentTimePosition.Value * Bounds.Width / Math.Max(1, MediaDuration.Value);
+        var nextXPos = CurrentTimePosition.ToDip(MediaDuration, Bounds.Width);
         
         if (CurrentTimePosition == MediaDuration && CurrentTimePosition is not {Value: 0})
             nextXPos = Bounds.Width;
 
-        var width = 5;
+        const int width = 2;
         
-        return new PositionMarker(new Rect(nextXPos-(width/2f), 0, width, height));
+        return new PositionMarker(new Rect(nextXPos, 0, width, Bounds.Height));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        var point = e.GetCurrentPoint(this);
-        
-        _timeline.Pressed(point.Position, () =>
-        {
-            CurrentTimePosition = TimeMs.FromDip(point.Position.X, Bounds.Width, MediaDuration);
-        });
+        var position = e.GetPosition(this);
+
+        if (_timeline.TryPress(position, new Rect(0, 0, Bounds.Width, Bounds.Height)))
+            CurrentTimePosition = TimeMs.FromDip(position.X, Bounds.Width, MediaDuration);
 
         base.OnPointerPressed(e);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        var point = e.GetCurrentPoint(this);
+        var position = e.GetPosition(this);
         
-        _timeline.Moved(point.Position, () =>
-        {
-            CurrentTimePosition = TimeMs.FromDip(point.Position.X, Bounds.Width, MediaDuration);
-        });
+        if (_timeline.TryMove())
+            CurrentTimePosition = TimeMs.FromDip(position.X, Bounds.Width, MediaDuration);
 
         base.OnPointerMoved(e);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        var point = e.GetCurrentPoint(this);
-
-        _timeline.Unpressed(point.Position);
+        _timeline.Release();
         
         base.OnPointerReleased(e);
-    }
-
-    protected override void OnPointerExited(PointerEventArgs e)
-    {
-        _timeline.Release();
-        base.OnPointerExited(e);
     }
 }

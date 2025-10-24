@@ -4,9 +4,10 @@
         xmlns:vm="using:Motion2Gif.ViewModels"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vlc="using:LibVLCSharp.Avalonia"
-        xmlns:local="clr-namespace:Motion2Gif.Controls"
+        xmlns:mediaTimelineControl="clr-namespace:Motion2Gif.MediaTimelineControl"
+        xmlns:rangeSelectorControl="clr-namespace:Motion2Gif.RangeSelectorControl"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Width="600" Height="435"
+        Width="600" Height="453"
         x:Class="Motion2Gif.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Motion2Gif"
@@ -23,19 +24,53 @@
 
         <vlc:VideoView Grid.Row="1" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         
-        <local:MediaTimeline 
-            Grid.Row="2"
-            MinHeight="35"
-            CurrentTimePosition="{Binding CurrentPosition}"
-            MediaDuration="{Binding MediaDuration}"
-        >
-        </local:MediaTimeline>
+        <Grid Grid.Row="2" Margin="20 0">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
+                <ScrollViewer.Styles>
+                    <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
+                        <Setter Property="ClipToBounds" Value="False"/>
+                    </Style>
+                </ScrollViewer.Styles>
+                
+                <Grid x:Name="TimelineGrid"
+                      Height="70"
+                      Margin="0 0 0 20"
+                      RowDefinitions="*, *" 
+                      ClipToBounds="False"
+                      Background="Transparent">
+                    
+                    <mediaTimelineControl:TimelineControl
+                        Grid.Row="0"
+                        CurrentTimePosition="{Binding CurrentPosition}"
+                        MediaDuration="{Binding MediaDuration}"
+                    />
+                    
+                    <rangeSelectorControl:TimeRangeSelector
+                        Grid.Row="1"
+                        Min="{Binding SelectorMin}"
+                        Max="{Binding MediaDuration}"
+                        TrimStart="{Binding TrimStart}"
+                        TrimEnd="{Binding TrimEnd}"
+                        ClipToBounds="False"
+                        ZIndex="1"
+                    />
+                    
+                    <mediaTimelineControl:MediaTimeline
+                        Grid.Row="1"
+                        CurrentTimePosition="{Binding CurrentPosition}"
+                        MediaDuration="{Binding MediaDuration}"
+                    />
+                </Grid>
+            </ScrollViewer>
+        </Grid>
         
         <StackPanel Grid.Row="3" Orientation="Horizontal">
             <Button Content="TogglePlay" Command="{Binding TogglePlayCmd}" />
             <Button Content="Stop" Command="{Binding StopCmd}" />
             <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" />
             <TextBlock VerticalAlignment="Center" Text="{Binding DisplayedTime}" />
+            <Button Content="Zoom +" Click="ZoomIn_OnClick"/>
+            <Button Content="Zoom -" Click="ZoomOut_OnClick"/>
         </StackPanel>
     </Grid>
 </Window>
