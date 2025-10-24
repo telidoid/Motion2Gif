@@ -17,14 +17,14 @@
         </Style>
     </Window.Styles>
 
-    <Grid RowDefinitions="Auto,*,Auto,Auto">
+    <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Margin="10">
         <StackPanel Grid.Row="0" Orientation="Horizontal">
             <Button Content="Choose a file" Command="{Binding OpenVideoFileCmd}" />
         </StackPanel>
 
         <vlc:VideoView Grid.Row="1" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
-        <Grid Grid.Row="2" Margin="20 0">
+        <Grid Grid.Row="2">
             <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
                 <ScrollViewer.Styles>
                     <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
@@ -34,7 +34,6 @@
 
                 <Grid x:Name="TimelineGrid"
                       Height="70"
-                      Margin="0 0 0 20"
                       RowDefinitions="*, *"
                       ClipToBounds="False"
                       Background="Transparent">
@@ -61,30 +60,45 @@
             </ScrollViewer>
         </Grid>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal">
-            <Button Command="{Binding TogglePlayCmd}">
-                <PathIcon Data="{StaticResource play_regular}" />
-            </Button>
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto,*">
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button Command="{Binding TogglePlayCmd}">
+                    <PathIcon Data="{StaticResource play_regular}" />
+                </Button>
+                
+                <Border Margin="5 0 0 0" />
 
-            <Button Command="{Binding StopCmd}">
-                <PathIcon Data="{StaticResource stop_regular}"></PathIcon>
-            </Button>
+                <Button Command="{Binding StopCmd}">
+                    <PathIcon Data="{StaticResource stop_regular}"></PathIcon>
+                </Button>
+            </StackPanel>
 
-            <TextBlock VerticalAlignment="Center" Text="{Binding DisplayedTime}" />
-            
-            <Button Click="ZoomIn_OnClick">
-                <PathIcon Data="{StaticResource zoom_in_regular}" />
-            </Button>
+            <Border Grid.Column="1" />
 
-            <Button Click="ZoomOut_OnClick">
-                <PathIcon Data="{StaticResource zoom_out_regular}" />
-            </Button>
-            
-            <ToggleButton Command="{Binding ToggleMuteCmd}">
-                <PathIcon Data="{StaticResource speaker_regular}"></PathIcon>
-            </ToggleButton>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Click="ZoomIn_OnClick">
+                    <PathIcon Data="{StaticResource zoom_in_regular}" />
+                </Button>
 
-            <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" />
+                <Border Margin="5 0 0 0" />
+
+                <Button Click="ZoomOut_OnClick">
+                    <PathIcon Data="{StaticResource zoom_out_regular}" />
+                </Button>
+
+                <Button Margin="10 0 5 0" Command="{Binding ToggleMuteCmd}">
+                    <PathIcon Data="{StaticResource speaker_regular}"></PathIcon>
+                </Button>
+                <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" />
+            </StackPanel>
+        </Grid>
+        
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock VerticalAlignment="Center" 
+                           Text="{Binding DisplayedTime}" 
+                           FontSize="10"
+                           FontFamily="{StaticResource Font.JetBrainsMono}"
+                           />
         </StackPanel>
     </Grid>
 </Window>

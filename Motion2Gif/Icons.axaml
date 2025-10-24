@@ -3,17 +3,17 @@
     <Design.PreviewWith>
         <Border Padding="20">
             <!-- Add Controls for Previewer Here -->
-            <StackPanel Orientation="Horizontal">
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource video_play_pause_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource play_circle_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource play_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource pause_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource stop_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource zoom_out_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource zoom_in_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource arrow_autofit_width_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource speaker_off_regular}"></PathIcon>
-                <PathIcon Margin="0 0 5 0" Data="{StaticResource speaker_regular}"></PathIcon>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <PathIcon Data="{StaticResource video_play_pause_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource play_circle_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource play_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource pause_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource stop_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource zoom_out_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource zoom_in_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource arrow_autofit_width_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource speaker_off_regular}"></PathIcon>
+                <PathIcon Data="{StaticResource speaker_regular}"></PathIcon>
             </StackPanel>
         </Border>
     </Design.PreviewWith>
