@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motion2Gif", "Motion2Gif\Motion2Gif.csproj", "{BDA596CE-C8B5-42FE-B24D-EE02AD392C06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motion2GifTests", "Motion2GifTests\Motion2GifTests.csproj", "{0F2226C4-C01B-4160-B321-53A7C236FCFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motion2Gif.Tests", "Motion2Gif.Tests\Motion2Gif.Tests.csproj", "{0F2226C4-C01B-4160-B321-53A7C236FCFC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
