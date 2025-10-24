@@ -1,11 +1,5 @@
 ﻿using Avalonia;
 
-namespace Motion2Gif.Controls;
+namespace Motion2Gif.Controls.MediaTimelineControl;
 
-public record struct PositionMarker(Rect Box)
-{
-    public bool IsHit(Point point)
-    {
-        return Box.Contains(point);
-    }
-}
+public record struct PositionMarker(Rect Box);

@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
-using LibVLCSharp.Shared;
-using Motion2Gif.Other;
 using Motion2Gif.Player;
-using Serilog;
 
-namespace Motion2Gif.MediaTimelineControl;
+namespace Motion2Gif.Controls.MediaTimelineControl;
 
 public class TimelineControl : Control
 {
@@ -63,7 +59,7 @@ public class TimelineControl : Control
         CurrentTimePosition = new TimeMs(10_000);
         MediaDuration = new TimeMs(500_000_000);
     }
-    
+
     public override void Render(DrawingContext context)
     {
         context.DrawRectangle(Brushes.White, null, new Rect(0, 0, Bounds.Width, TimeScaleHeight));
@@ -107,7 +103,7 @@ public class TimelineControl : Control
             Typeface.Default,
             12,
             Brushes.Black);
-        
+
         var dip = timePoint.ToDip(MediaDuration, Bounds.Width);
         var x = Math.Round(dip - text.Width / 2.0);
 

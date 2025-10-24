@@ -1,6 +1,6 @@
 ﻿using Avalonia;
 
-namespace Motion2Gif.RangeSelectorControl;
+namespace Motion2Gif.Controls.RangeSelectorControl;
 
 public record DraggableRect
 {

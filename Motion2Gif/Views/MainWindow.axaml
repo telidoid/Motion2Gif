@@ -4,8 +4,8 @@
         xmlns:vm="using:Motion2Gif.ViewModels"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vlc="using:LibVLCSharp.Avalonia"
-        xmlns:mediaTimelineControl="clr-namespace:Motion2Gif.MediaTimelineControl"
-        xmlns:rangeSelectorControl="clr-namespace:Motion2Gif.RangeSelectorControl"
+        xmlns:mediaTimelineControl1="clr-namespace:Motion2Gif.Controls.MediaTimelineControl"
+        xmlns:rangeSelectorControl="clr-namespace:Motion2Gif.Controls.RangeSelectorControl"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="600" Height="453"
         x:Class="Motion2Gif.Views.MainWindow"
@@ -39,7 +39,7 @@
                       ClipToBounds="False"
                       Background="Transparent">
 
-                    <mediaTimelineControl:TimelineControl
+                    <mediaTimelineControl1:TimelineControl
                         Grid.Row="0"
                         CurrentTimePosition="{Binding CurrentPosition}"
                         MediaDuration="{Binding MediaDuration}" />
@@ -53,7 +53,7 @@
                         ClipToBounds="False"
                         ZIndex="1" />
 
-                    <mediaTimelineControl:MediaTimeline
+                    <mediaTimelineControl1:MediaTimeline
                         Grid.Row="1"
                         CurrentTimePosition="{Binding CurrentPosition}"
                         MediaDuration="{Binding MediaDuration}" />

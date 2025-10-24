@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using LibVLCSharp.Avalonia;
 using LibVLCSharp.Shared;
-using Motion2Gif.Other;
 using Motion2Gif.Player;
 
 namespace Motion2Gif.VLC;

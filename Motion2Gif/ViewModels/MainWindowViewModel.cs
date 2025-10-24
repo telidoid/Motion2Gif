@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Motion2Gif.Controls;
 using Motion2Gif.Other;
 using Motion2Gif.Player;
 using Motion2Gif.VLC;
