@@ -75,13 +75,13 @@
 
             <Grid Grid.Row="2" ColumnDefinitions="*,Auto,*" Margin="10 0">
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Button Command="{Binding TogglePlayCmd}">
+                    <Button Command="{Binding TogglePlayCmd}" Cursor="Hand">
                         <PathIcon Data="{StaticResource play_regular}" />
                     </Button>
 
                     <Border Margin="5 0 0 0" />
 
-                    <Button Command="{Binding StopCmd}">
+                    <Button Command="{Binding StopCmd}" Cursor="Hand">
                         <PathIcon Data="{StaticResource stop_regular}"></PathIcon>
                     </Button>
                 </StackPanel>
@@ -89,20 +89,20 @@
                 <Border Grid.Column="1" />
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Click="ZoomIn_OnClick">
+                    <Button Click="ZoomIn_OnClick" Cursor="Hand">
                         <PathIcon Data="{StaticResource zoom_in_regular}" />
                     </Button>
 
                     <Border Margin="5 0 0 0" />
 
-                    <Button Click="ZoomOut_OnClick">
+                    <Button Click="ZoomOut_OnClick" Cursor="Hand">
                         <PathIcon Data="{StaticResource zoom_out_regular}" />
                     </Button>
 
-                    <Button Margin="10 0 5 0" Command="{Binding ToggleMuteCmd}">
+                    <Button Margin="10 0 5 0" Command="{Binding ToggleMuteCmd}" Cursor="Hand">
                         <PathIcon Data="{StaticResource speaker_regular}"></PathIcon>
                     </Button>
-                    <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" />
+                    <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" Cursor="Hand" />
                 </StackPanel>
             </Grid>
         </Grid>
