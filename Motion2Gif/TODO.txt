@@ -1,0 +1,9 @@
+﻿- Сохранять состояние IsMuted
+- Сохранять состояние AudioVolume
+- Функционал Cut Video (ffmpeg) [важное]
+- Функционал генерации GIF (ffmpeg) [важное]
+- Добавить versioning [важное]
+- Добавить ручку переключения времени для TimelineControl [желательно]
+- TogglePlay при нажатии на VideoView
+- TogglePlay при нажатии пробела
+- Клавиши стрелок для перемещения по Timeline

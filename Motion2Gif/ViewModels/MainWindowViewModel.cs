@@ -29,6 +29,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private TimeMs _trimEnd = new(2_000);
     [ObservableProperty] private TimeMs _selectorMin = new(0);
 
+    [ObservableProperty] private bool _isPlaying;
+    [ObservableProperty] private bool _isMuted;
+
     private bool _suppressPlayerSeek;
 
     public MainWindowViewModel(IFilePickerService filePickerService)
@@ -54,6 +57,19 @@ public partial class MainWindowViewModel : ViewModelBase
             }
         };
 
+        PlayerService.PlayerStateChangedAction = state =>
+        {
+            IsPlaying = state switch
+            {
+                PlayerState.Playing => true,
+                PlayerState.Paused => false,
+                PlayerState.Stopped => false,
+                _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+            };
+        };
+
+        PlayerService.IsMutedStateChangedAction = isMuted => IsMuted = isMuted;
+
         PlayerService.ChangeVolume(AudioVolume.Create(Volume));
     }
 
@@ -65,7 +81,6 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task OnVideoFileOpened()
     {
-        Log.Information("OnVideoFileOpened");
         var path = await _filePickerService.Pick();
 
         if (path == null)
@@ -99,14 +114,4 @@ public partial class MainWindowViewModel : ViewModelBase
         DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
 
     partial void OnVolumeChanged(int value) => PlayerService.ChangeVolume(AudioVolume.Create(value));
-
-    partial void OnTrimEndChanged(TimeMs value)
-    {
-        Log.Information($"TrimEnd: {TimeSpan.FromMilliseconds(value.Value)}");
-    }
-
-    partial void OnTrimStartChanged(TimeMs value)
-    {
-        Log.Information($"TrimStart: {TimeSpan.FromMilliseconds(value.Value)}");
-    }
 }
