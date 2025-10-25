@@ -49,11 +49,21 @@ public partial class MainWindow : Window
 
     private void ZoomIn_OnClick(object? sender, RoutedEventArgs e)
     {
-        TimelineGrid.MinWidth += 100;
+        if (TimelineGrid.MinWidth + 200 < this.MinWidth)
+        {
+            TimelineGrid.MinWidth = this.MinWidth + 200;
+        }
+        else
+        {
+            TimelineGrid.MinWidth += 200;
+        }
     }
 
     private void ZoomOut_OnClick(object? sender, RoutedEventArgs e)
     {
-        TimelineGrid.MinWidth -= 100;
+        if (TimelineGrid.MinWidth - 200 < this.MinWidth)
+            return;
+        
+        TimelineGrid.MinWidth -= 200;
     }
 }
