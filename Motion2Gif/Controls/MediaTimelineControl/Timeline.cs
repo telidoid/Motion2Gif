@@ -1,18 +1,18 @@
 ﻿using Avalonia;
 
-namespace Motion2Gif.RangeSelectorControl;
+namespace Motion2Gif.Controls.MediaTimelineControl;
 
-public record DraggableRect
+public record struct Timeline()
 {
-    private bool _pressed;
-
+    private bool _pressed = false;
+    
     public bool TryPress(Point point, Rect rect)
     {
         _pressed = rect.Contains(point);
         return _pressed;
     }
 
-    public bool TryDrag() => _pressed;
-    
+    public bool TryMove() => _pressed;
+
     public void Release() => _pressed = false;
 }

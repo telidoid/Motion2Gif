@@ -1,14 +1,10 @@
 using System;
-using System.Globalization;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
 using Motion2Gif.Other;
 using Motion2Gif.ViewModels;
-using Serilog;
 
 namespace Motion2Gif.Views;
 
@@ -33,22 +29,46 @@ public partial class MainWindow : Window
 
     private void OnWindowClosed(object? o, EventArgs e)
     {
-        Log.Information("Main windows is closed");
-        
         Dispatcher.UIThread.Post(() =>
         {
             // _player.Dispose();
             // _libVlc.Dispose();
         });
+        
+        this.Closed -= OnWindowClosed;
     }
 
     private void ZoomIn_OnClick(object? sender, RoutedEventArgs e)
     {
-        TimelineGrid.MinWidth += 100;
+        var windowWidth = this.Bounds.Width - (TimelineContainer.Margin.Right + TimelineContainer.Margin.Left);
+        
+        if (TimelineGrid.MinWidth + 200 < windowWidth)
+        {
+            TimelineGrid.MinWidth = windowWidth + 200;
+        }
+        else
+        {
+            TimelineGrid.MinWidth += 200;
+        }
     }
 
     private void ZoomOut_OnClick(object? sender, RoutedEventArgs e)
     {
-        TimelineGrid.MinWidth -= 100;
+        var windowWidth = this.Bounds.Width - (TimelineContainer.Margin.Right + TimelineContainer.Margin.Left);
+        
+        if (TimelineGrid.MinWidth - 200 < windowWidth)
+        {
+            TimelineGrid.MinWidth = windowWidth;
+        }
+        else
+        {
+            TimelineGrid.MinWidth -= 200;
+        }
+    }
+
+    private void AutofitWidth_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var windowWidth = this.Bounds.Width - (TimelineContainer.Margin.Right + TimelineContainer.Margin.Left);
+        TimelineGrid.MinWidth = windowWidth;
     }
 }

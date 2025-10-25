@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Motion2Gif.Other;
+namespace Motion2Gif.Player;
 
 public record struct AudioVolume(int Value)
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Motion2Gif.Other;
+namespace Motion2Gif.Player;
 
 public readonly record struct TimeMs(long Value)
     : IComparable<TimeMs>, IComparisonOperators<TimeMs, TimeMs, bool>
@@ -35,7 +35,7 @@ public static class TimeMsExtensions
         var ts = timeMs.TimeStamp();
 
         return ts.Hours == 0
-            ? $"{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}"
+            ? $"{ts.Minutes:00}:{ts.Seconds:00}"
             : $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
     }
 

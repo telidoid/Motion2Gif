@@ -3,10 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
-using Motion2Gif.Controls;
-using Motion2Gif.Other;
+using Motion2Gif.Player;
 
-namespace Motion2Gif.MediaTimelineControl;
+namespace Motion2Gif.Controls.MediaTimelineControl;
 
 // ReSharper disable once MemberCanBePrivate.
 public class MediaTimeline : Control

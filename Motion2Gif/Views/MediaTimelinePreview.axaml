@@ -2,8 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:mediaTimelineControl="clr-namespace:Motion2Gif.MediaTimelineControl"
-        xmlns:rangeSelectorControl="clr-namespace:Motion2Gif.RangeSelectorControl"
+        xmlns:mediaTimelineControl1="clr-namespace:Motion2Gif.Controls.MediaTimelineControl"
+        xmlns:rangeSelectorControl="clr-namespace:Motion2Gif.Controls.RangeSelectorControl"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Motion2Gif.Views.MediaTimelinePreview"
         Title="MediaTimelinePreview" Background="Gray">
@@ -21,7 +21,7 @@
                   ClipToBounds="False"
                   Background="Transparent">
 
-                <mediaTimelineControl:TimelineControl
+                <mediaTimelineControl1:TimelineControl
                     Grid.Row="0" />
 
                 <rangeSelectorControl:TimeRangeSelector
@@ -29,7 +29,7 @@
                     ClipToBounds="False"
                     ZIndex="1" />
 
-                <mediaTimelineControl:MediaTimeline
+                <mediaTimelineControl1:MediaTimeline
                     Grid.Row="1" />
             </Grid>
             

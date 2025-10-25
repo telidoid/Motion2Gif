@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using Serilog;
 
 namespace Motion2Gif.Other;
