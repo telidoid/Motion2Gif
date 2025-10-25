@@ -1,7 +1,5 @@
 using System;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
@@ -26,13 +24,7 @@ public partial class MainWindow : Window
             vm!.PlayerService.AttachPlayer(VideoView);
         });
         
-        ToolBar.PointerPressed += ToolBarOnPointerPressed;
         this.Closed += OnWindowClosed;
-    }
-
-    private void ToolBarOnPointerPressed(object? sender, PointerPressedEventArgs args)
-    {
-        if (args.Source is not AccessText) ToolBar.Close();
     }
 
     private void OnWindowClosed(object? o, EventArgs e)
@@ -43,7 +35,6 @@ public partial class MainWindow : Window
             // _libVlc.Dispose();
         });
         
-        ToolBar.PointerPressed -= ToolBarOnPointerPressed;
         this.Closed -= OnWindowClosed;
     }
 

@@ -14,25 +14,27 @@
         Title="Motion2Gif"
         Icon="/Assets/png/Motion2Gif_M2GF_128.png">
     <DockPanel>
-        <Menu DockPanel.Dock="Top" Height="20" FontSize="12" x:Name="ToolBar">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Open..." Command="{Binding OpenVideoFileCmd}"></MenuItem>
-            </MenuItem>
-            <MenuItem Header="_Export">
-                <MenuItem Header="Cut video"></MenuItem>
-                <MenuItem Header="To GIF"></MenuItem>
-            </MenuItem>
-        </Menu>
-        
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+            <Menu Height="20" FontSize="12">
+                <MenuItem Header="_File">
+                    <MenuItem Header="_Open..." Command="{Binding OpenVideoFileCmd}"></MenuItem>
+                </MenuItem>
+                <MenuItem Header="_Export">
+                    <MenuItem Header="Cut video"></MenuItem>
+                    <MenuItem Header="To GIF"></MenuItem>
+                </MenuItem>
+            </Menu>
+        </StackPanel>
+
         <StackPanel DockPanel.Dock="Bottom" Margin="5" Orientation="Horizontal" HorizontalAlignment="Right">
             <TextBlock VerticalAlignment="Center"
                        Text="{Binding DisplayedTime}"
                        FontSize="10" />
         </StackPanel>
-        
+
         <Grid RowDefinitions="*,Auto,Auto">
             <vlc:VideoView Grid.Row="0" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent"/>
+                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" />
             </vlc:VideoView>
 
             <Grid Grid.Row="1" Margin="10 0">

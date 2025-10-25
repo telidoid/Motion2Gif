@@ -65,6 +65,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task OnVideoFileOpened()
     {
+        Log.Information("OnVideoFileOpened");
         var path = await _filePickerService.Pick();
 
         if (path == null)
