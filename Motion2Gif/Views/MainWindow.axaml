@@ -37,7 +37,7 @@
                 <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" />
             </vlc:VideoView>
 
-            <Grid Grid.Row="1" Margin="10 0">
+            <Grid Grid.Row="1" Margin="10 0" x:Name="TimelineContainer">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
                     <ScrollViewer.Styles>
                         <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
@@ -89,6 +89,12 @@
                 <Border Grid.Column="1" />
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Click="AutofitWidth_OnClick" Cursor="Hand">
+                        <PathIcon Data="{StaticResource arrow_autofit_width_regular}" />
+                    </Button>
+
+                    <Border Margin="5 0 0 0" />
+                    
                     <Button Click="ZoomIn_OnClick" Cursor="Hand">
                         <PathIcon Data="{StaticResource zoom_in_regular}" />
                     </Button>

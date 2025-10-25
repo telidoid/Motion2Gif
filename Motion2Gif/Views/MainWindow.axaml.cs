@@ -40,9 +40,11 @@ public partial class MainWindow : Window
 
     private void ZoomIn_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (TimelineGrid.MinWidth + 200 < this.MinWidth)
+        var windowWidth = this.Bounds.Width - (TimelineContainer.Margin.Right + TimelineContainer.Margin.Left);
+        
+        if (TimelineGrid.MinWidth + 200 < windowWidth)
         {
-            TimelineGrid.MinWidth = this.MinWidth + 200;
+            TimelineGrid.MinWidth = windowWidth + 200;
         }
         else
         {
@@ -52,9 +54,21 @@ public partial class MainWindow : Window
 
     private void ZoomOut_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (TimelineGrid.MinWidth - 200 < this.MinWidth)
-            return;
+        var windowWidth = this.Bounds.Width - (TimelineContainer.Margin.Right + TimelineContainer.Margin.Left);
         
-        TimelineGrid.MinWidth -= 200;
+        if (TimelineGrid.MinWidth - 200 < windowWidth)
+        {
+            TimelineGrid.MinWidth = windowWidth;
+        }
+        else
+        {
+            TimelineGrid.MinWidth -= 200;
+        }
+    }
+
+    private void AutofitWidth_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var windowWidth = this.Bounds.Width - (TimelineContainer.Margin.Right + TimelineContainer.Margin.Left);
+        TimelineGrid.MinWidth = windowWidth;
     }
 }
