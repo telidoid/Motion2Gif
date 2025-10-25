@@ -14,4 +14,13 @@ public interface IVideoPlayerService
     void ChangeTimePosition(long timePosition);
     void ChangeVolume(AudioVolume volume);
     Action<long> PlayerTimeChangedAction { get; set; }
+    Action<PlayerState> PlayerStateChangedAction { get; set; }
+    Action<bool> IsMutedStateChangedAction { get; set; }
+}
+
+public enum PlayerState
+{
+    Playing,
+    Paused,
+    Stopped,
 }
