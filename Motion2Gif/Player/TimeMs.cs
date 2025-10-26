@@ -28,11 +28,11 @@ public readonly record struct TimeMs(long Value)
 
 public static class TimeMsExtensions
 {
-    private static TimeSpan TimeStamp(this TimeMs time) => TimeSpan.FromMilliseconds(time.Value);
+    public static TimeSpan TimeSpan(this TimeMs time) => System.TimeSpan.FromMilliseconds(time.Value);
 
     public static string Formatted(this TimeMs timeMs)
     {
-        var ts = timeMs.TimeStamp();
+        var ts = timeMs.TimeSpan();
 
         return ts.Hours == 0
             ? $"{ts.Minutes:00}:{ts.Seconds:00}"
@@ -41,11 +41,17 @@ public static class TimeMsExtensions
 
     public static string NewFormatted(this TimeMs timeMs)
     {
-        var ts = timeMs.TimeStamp();
+        var ts = timeMs.TimeSpan();
 
         return ts.Hours == 0 ? $"{ts.Minutes:00}:{ts.Seconds:00}" : $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}";
     }
 
     public static double ToDip(this TimeMs timeMs, TimeMs duration, double width) =>
         timeMs.Value * width / Math.Max(1, duration.Value);
+
+    public static string FormatForProcessor(this TimeMs timeMs)
+    {
+        var ts = timeMs.TimeSpan();
+        return $"{(int)ts.TotalHours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}";
+    }
 }

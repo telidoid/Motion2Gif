@@ -1,3 +1,5 @@
-﻿namespace Motion2Gif.Player;
+﻿using System;
 
-public record VideoFileDescription(string Name, TimeMs Duration);
+namespace Motion2Gif.Player;
+
+public record VideoFileDescription(Uri Uri, TimeMs Duration);

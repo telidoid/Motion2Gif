@@ -74,7 +74,7 @@ public class VideoPlayerService : IVideoPlayerService, IDisposable
 
         await media.Parse();
 
-        return new VideoFileDescription(uri.OriginalString, new TimeMs(media.Duration));
+        return new VideoFileDescription(uri, new TimeMs(media.Duration));
     }
 
     public void ChangeTimePosition(long timePosition)
