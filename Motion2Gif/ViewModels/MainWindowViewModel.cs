@@ -1,10 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Motion2Gif.Other;
 using Motion2Gif.Player;
+using Motion2Gif.Processing;
 using Motion2Gif.VLC;
 using Serilog;
 
@@ -19,6 +21,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public ICommand ToggleMuteCmd { get; }
     public ICommand TogglePlayCmd { get; }
     public ICommand StopCmd { get; }
+    public ICommand CutVideoCmd { get; }
+    public ICommand GenerateGifCmd { get; }
 
     [ObservableProperty] private TimeMs _currentPosition = new(0);
     [ObservableProperty] private TimeMs _mediaDuration = new(0);
@@ -34,6 +38,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private bool _suppressPlayerSeek;
 
+    private VideoFileDescription? _openedFileDescription = null;
+
     public MainWindowViewModel(IFilePickerService filePickerService)
     {
         _filePickerService = filePickerService;
@@ -42,6 +48,8 @@ public partial class MainWindowViewModel : ViewModelBase
         ToggleMuteCmd = new RelayCommand(() => PlayerService.ToggleMute());
         TogglePlayCmd = new RelayCommand(() => PlayerService.TogglePlay());
         StopCmd = new RelayCommand(StopVideo);
+        CutVideoCmd = new AsyncRelayCommand(CutVideo);
+        GenerateGifCmd = new AsyncRelayCommand(GenerateGif);
 
         PlayerService.PlayerTimeChangedAction = l =>
         {
@@ -79,6 +87,44 @@ public partial class MainWindowViewModel : ViewModelBase
         PlayerService.Stop();
     }
 
+    private async Task CutVideo()
+    {
+        if (_openedFileDescription is null)
+        {
+            Log.Warning("Video file description is null");
+            return;
+        }
+        
+        var range = MediaRange.Create(TrimStart, TrimEnd);
+        var inputPath = _openedFileDescription.Uri.LocalPath;
+        var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.mkv";
+        
+        Log.Information($"input path: {inputPath}, description: {_openedFileDescription}");
+        Log.Information($"output path: {outputPath}");
+        Log.Information($"range: {range}");
+        
+        await VideoProcessor.CutVideo(range, inputPath, outputPath);
+    }
+
+    private async Task GenerateGif()
+    {
+        if (_openedFileDescription is null)
+        {
+            Log.Warning("Video file description is null");
+            return;
+        }
+        
+        var range = MediaRange.Create(TrimStart, TrimEnd);
+        var inputPath = _openedFileDescription.Uri.LocalPath;
+        var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.gif";
+        
+        Log.Information($"input path: {inputPath}, description: {_openedFileDescription}");
+        Log.Information($"output path: {outputPath}");
+        Log.Information($"range: {range}");
+        
+        await VideoProcessor.GenerateGif(range, inputPath, outputPath);
+    }
+
     private async Task OnVideoFileOpened()
     {
         var path = await _filePickerService.Pick();
@@ -86,8 +132,8 @@ public partial class MainWindowViewModel : ViewModelBase
         if (path == null)
             return;
 
-        var fileDescription = await PlayerService.OpenAsync(path);
-        MediaDuration = fileDescription.Duration;
+        _openedFileDescription = await PlayerService.OpenAsync(path);
+        MediaDuration = _openedFileDescription.Duration;
         CurrentPosition = new TimeMs(0);
     }
 
