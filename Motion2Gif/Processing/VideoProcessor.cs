@@ -1,33 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Motion2Gif.Player;
 using Serilog;
 
 namespace Motion2Gif.Processing;
-
-public record MediaRange(TimeMs Start, TimeMs End)
-{
-    public static MediaRange Create(TimeMs start, TimeMs end)
-    {
-        if (end < start)
-            throw new ArgumentException("end must be greater than start");
-
-        return new MediaRange(start, end);
-    }
-}
-
-public static class MediaRangeExtensions
-{
-    public static TimeMs GetDuration(this MediaRange mediaRange)
-    {
-        long ticks = mediaRange.End.TimeSpan().Ticks - mediaRange.Start.TimeSpan().Ticks;
-        long ms = (ticks + 5_000) / 10_000; // округление к ближайшему мс
-        return new TimeMs(ms);
-    }
-}
 
 public static class VideoProcessor
 {
@@ -106,7 +84,6 @@ public static class VideoProcessor
 
         while (!process.HasExited && await process.StandardOutput.ReadLineAsync(ct) is { } line)
         {
-            // Log.Information($"line: {line}");
             var keyVal = line.Split('=');
             var (key, value) = (keyVal[0], keyVal[1]);
 

@@ -6,35 +6,6 @@ using Serilog;
 
 namespace Motion2Gif.Processing;
 
-public enum JobState
-{
-    Queued,
-    Running,
-    Completed,
-    Canceled,
-    Failed
-}
-
-public readonly record struct JobId(Guid Value)
-{
-    public static JobId Create() => new(Guid.NewGuid());
-    public override string ToString() => Value.ToString();
-}
-
-public record JobProgress(double Percent, TimeSpan Processed, TimeSpan Total, JobState State, string? Phase);
-
-public record Job(
-    JobId Id,
-    IProgress<JobProgress>? Progress,
-    IJobModel Model,
-    CancellationToken CancellationToken = default);
-
-public interface IJobModel;
-
-public record GenerateGifJob(MediaRange MediaRange, Uri FilePath, string OutputFilePath) : IJobModel;
-
-public record CutVideoJob(MediaRange MediaRange, Uri FilePath, string OutputFilePath) : IJobModel;
-
 public class JobProcessingService
 {
     private readonly ConcurrentDictionary<JobId, Job> _jobs = new();
@@ -65,7 +36,8 @@ public class JobProcessingService
                     await VideoProcessor.CutVideo(cutVideoJobModel, progress: job.Progress, ct: job.CancellationToken);
                     break;
                 case GenerateGifJob generateGifJobModel:
-                    await VideoProcessor.GenerateGif(generateGifJobModel, progress: job.Progress, ct: job.CancellationToken);
+                    await VideoProcessor.GenerateGif(generateGifJobModel, progress: job.Progress,
+                        ct: job.CancellationToken);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
