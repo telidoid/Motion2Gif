@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 using System.IO;
-using Avalonia.Logging;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using LogEventLevel = Serilog.Events.LogEventLevel;
 
@@ -9,14 +9,18 @@ namespace Motion2Gif;
 
 internal static class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
-    [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static IHost AppHost { get; private set; } = null!;
 
-    // Avalonia configuration, don't remove; also used by visual designer.
+    [STAThread]
+    public static void Main(string[] args)
+    {
+        AppHost = Host.CreateDefaultBuilder(args)
+            .ConfigureMotion2Gif()
+            .Build();
+
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    }
+
     private static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
@@ -29,11 +33,11 @@ internal static class Program
         var logsDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Motion2Gif", "Logs");
-        
+
         Directory.CreateDirectory(logsDir);
-        
+
         var logFile = Path.Combine(logsDir, "log-.txt");
-        
+
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .WriteTo.File(

@@ -23,11 +23,16 @@ public readonly record struct JobId(Guid Value)
 
 public record JobProgress(double Percent, TimeSpan Processed, TimeSpan Total, JobState State, string? Phase);
 
-public record Job(JobId Id, IProgress<JobProgress>? Progress, IJobModel Model, CancellationToken CancellationToken = default);
+public record Job(
+    JobId Id,
+    IProgress<JobProgress>? Progress,
+    IJobModel Model,
+    CancellationToken CancellationToken = default);
 
 public interface IJobModel;
 
 public record GenerateGifJob(MediaRange MediaRange, Uri FilePath, string OutputFilePath) : IJobModel;
+
 public record CutVideoJob(MediaRange MediaRange, Uri FilePath, string OutputFilePath) : IJobModel;
 
 public class JobProcessingService
@@ -35,19 +40,23 @@ public class JobProcessingService
     private readonly ConcurrentDictionary<JobId, Job> _jobs = new();
     private readonly SemaphoreSlim _semaphore = new(4, 4);
 
-    public JobId ScheduleJob(IJobModel jobModel, IProgress<JobProgress>? progress = null, CancellationToken ct = default)
+    public JobId ScheduleJob(IJobModel jobModel, IProgress<JobProgress>? progress = null,
+        CancellationToken ct = default)
     {
         var job = new Job(JobId.Create(), progress, jobModel, ct);
         _jobs.TryAdd(job.Id, job);
         _ = ProcessJobAsync(job);
         progress?.Report(new JobProgress(0, TimeSpan.Zero, TimeSpan.Zero, JobState.Queued, "Queued"));
-        
+
         return job.Id;
     }
 
     private async Task ProcessJobAsync(Job job)
     {
         await _semaphore.WaitAsync(job.CancellationToken);
+
+        job.Progress?.Report(new JobProgress(0, TimeSpan.Zero, TimeSpan.Zero, JobState.Running, "Running"));
+
         try
         {
             switch (job.Model)
@@ -64,6 +73,7 @@ public class JobProcessingService
         }
         catch (Exception ex)
         {
+            job.Progress?.Report(new JobProgress(0, TimeSpan.Zero, TimeSpan.Zero, JobState.Failed, "Failed"));
             Log.Error("Error processing job", ex);
         }
         finally

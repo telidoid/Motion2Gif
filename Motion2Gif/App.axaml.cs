@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Motion2Gif.Other;
 using Motion2Gif.ViewModels;
 using Motion2Gif.Views;
@@ -21,7 +22,12 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow();
+            var sp = Program.AppHost.Services;
+            
+            desktop.MainWindow = new MainWindow()
+            {
+                DataContext = sp.GetRequiredService<MainWindowViewModel>() 
+            };
             
             if (desktop.Args != null)
             {

@@ -12,13 +12,13 @@ public interface IFilePickerService
     Task<Uri?> Pick();
 }
 
-public class FilePickerService(Func<TopLevel> getTopLevel) : IFilePickerService
+public class FilePickerService(Func<IStorageProvider> storageFactory) : IFilePickerService
 {
     public async Task<Uri?> Pick()
     {
-        var topLevel = getTopLevel(); 
-
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        var storageProvider = storageFactory();
+        
+        var files = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Open a Video File",
             AllowMultiple = false
