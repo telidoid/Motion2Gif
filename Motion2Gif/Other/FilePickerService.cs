@@ -12,6 +12,14 @@ public interface IFilePickerService
     Task<Uri?> Pick();
 }
 
+public class DesignFilePickerService : IFilePickerService
+{
+    public Task<Uri?> Pick()
+    {
+        throw new Exception("Design time file picker");
+    }
+}
+
 public class FilePickerService(Func<IStorageProvider> storageFactory) : IFilePickerService
 {
     public async Task<Uri?> Pick()

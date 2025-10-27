@@ -13,6 +13,11 @@
         x:DataType="vm:MainWindowViewModel"
         Title="Motion2Gif"
         Icon="/Assets/png/Motion2Gif_M2GF_128.png">
+    
+    <Design.DataContext>
+        <vm:DesignMainWindowViewModel></vm:DesignMainWindowViewModel>
+    </Design.DataContext>
+    
     <Window.Styles>
         <Style Selector="PathIcon.play">
             <Setter Property="Data" Value="{StaticResource play_regular}" />

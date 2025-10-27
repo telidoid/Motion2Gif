@@ -1,10 +1,13 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
 using Motion2Gif.Other;
+using Motion2Gif.Processing;
 using Motion2Gif.ViewModels;
+using Motion2Gif.VLC;
 
 namespace Motion2Gif.Views;
 
@@ -14,16 +17,13 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         Core.Initialize();
-        
-        // var filePickerService = new FilePickerService(() => this);
-        // DataContext = new MainWindowViewModel(filePickerService);
-        
+
         Dispatcher.UIThread.Post(() =>
         {
             var vm = DataContext as MainWindowViewModel;
             vm!.AttachPlayer(VideoView);
         });
-        
+
         this.Closed += OnWindowClosed;
     }
 
@@ -34,14 +34,14 @@ public partial class MainWindow : Window
             // _player.Dispose();
             // _libVlc.Dispose();
         });
-        
+
         this.Closed -= OnWindowClosed;
     }
 
     private void ZoomIn_OnClick(object? sender, RoutedEventArgs e)
     {
         var windowWidth = this.Bounds.Width - (TimelineContainer.Margin.Right + TimelineContainer.Margin.Left);
-        
+
         if (TimelineGrid.MinWidth + 200 < windowWidth)
         {
             TimelineGrid.MinWidth = windowWidth + 200;
@@ -55,7 +55,7 @@ public partial class MainWindow : Window
     private void ZoomOut_OnClick(object? sender, RoutedEventArgs e)
     {
         var windowWidth = this.Bounds.Width - (TimelineContainer.Margin.Right + TimelineContainer.Margin.Left);
-        
+
         if (TimelineGrid.MinWidth - 200 < windowWidth)
         {
             TimelineGrid.MinWidth = windowWidth;

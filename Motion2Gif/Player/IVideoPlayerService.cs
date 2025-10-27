@@ -24,3 +24,27 @@ public enum PlayerState
     Paused,
     Stopped,
 }
+
+public class DesignVideoPlayerService : IVideoPlayerService
+{
+    public void AttachPlayer(VideoView videoView) { }
+
+    public Task<VideoFileDescription> OpenAsync(Uri uri)
+    {
+        throw new Exception("Design time video player service");
+    }
+
+    public void TogglePlay() { }
+
+    public void ToggleMute() { }
+
+    public void Stop() { }
+
+    public void ChangeTimePosition(long timePosition) { }
+
+    public void ChangeVolume(AudioVolume volume) { }
+
+    public Action<long> PlayerTimeChangedAction { get; set; } = _ => { };
+    public Action<PlayerState> PlayerStateChangedAction { get; set; } = _ => { };
+    public Action<bool> IsMutedStateChangedAction { get; set; } = _ => { };
+}

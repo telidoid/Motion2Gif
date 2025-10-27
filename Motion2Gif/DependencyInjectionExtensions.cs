@@ -22,7 +22,7 @@ internal static class DependencyInjectionExtensions
         {
             services.AddSingleton<IVideoPlayerService, VideoPlayerService>();
             services.AddSingleton<IFilePickerService, FilePickerService>();
-            services.AddSingleton<JobProcessingService>();
+            services.AddSingleton<IJobProcessingService, JobProcessingService>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<Func<IStorageProvider>>(_ => () =>
             {

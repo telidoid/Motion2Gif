@@ -16,7 +16,7 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IVideoPlayerService _playerService;
     private readonly IFilePickerService _filePickerService;
-    private readonly JobProcessingService _jobProcessingService;
+    private readonly IJobProcessingService _jobProcessingService;
 
     public ICommand OpenVideoFileCmd { get; }
     public ICommand ToggleMuteCmd { get; }
@@ -44,7 +44,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(
         IVideoPlayerService playerService, 
         IFilePickerService filePickerService,
-        JobProcessingService jobProcessingService)
+        IJobProcessingService jobProcessingService)
     {
         _playerService = playerService;
         _filePickerService = filePickerService;
