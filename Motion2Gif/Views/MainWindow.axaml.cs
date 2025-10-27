@@ -21,7 +21,7 @@ public partial class MainWindow : Window
         Dispatcher.UIThread.Post(() =>
         {
             var vm = DataContext as MainWindowViewModel;
-            vm!.PlayerService.AttachPlayer(VideoView);
+            vm!.AttachPlayer(VideoView);
         });
         
         this.Closed += OnWindowClosed;

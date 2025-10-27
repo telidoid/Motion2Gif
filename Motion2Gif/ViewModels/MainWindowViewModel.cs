@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LibVLCSharp.Avalonia;
 using Motion2Gif.Other;
 using Motion2Gif.Player;
 using Motion2Gif.Processing;
@@ -14,7 +15,7 @@ namespace Motion2Gif.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    public readonly IVideoPlayerService PlayerService = new VideoPlayerService();
+    private readonly IVideoPlayerService _playerService;
     private readonly IFilePickerService _filePickerService;
 
     public ICommand OpenVideoFileCmd { get; }
@@ -40,18 +41,19 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private VideoFileDescription? _openedFileDescription = null;
 
-    public MainWindowViewModel(IFilePickerService filePickerService)
+    public MainWindowViewModel(IVideoPlayerService playerService, IFilePickerService filePickerService)
     {
+        _playerService = playerService;
         _filePickerService = filePickerService;
 
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
-        ToggleMuteCmd = new RelayCommand(() => PlayerService.ToggleMute());
-        TogglePlayCmd = new RelayCommand(() => PlayerService.TogglePlay());
+        ToggleMuteCmd = new RelayCommand(() => _playerService.ToggleMute());
+        TogglePlayCmd = new RelayCommand(() => _playerService.TogglePlay());
         StopCmd = new RelayCommand(StopVideo);
         CutVideoCmd = new AsyncRelayCommand(CutVideo);
         GenerateGifCmd = new AsyncRelayCommand(GenerateGif);
 
-        PlayerService.PlayerTimeChangedAction = l =>
+        _playerService.PlayerTimeChangedAction = l =>
         {
             try
             {
@@ -65,7 +67,7 @@ public partial class MainWindowViewModel : ViewModelBase
             }
         };
 
-        PlayerService.PlayerStateChangedAction = state =>
+        _playerService.PlayerStateChangedAction = state =>
         {
             IsPlaying = state switch
             {
@@ -76,15 +78,15 @@ public partial class MainWindowViewModel : ViewModelBase
             };
         };
 
-        PlayerService.IsMutedStateChangedAction = isMuted => IsMuted = isMuted;
+        _playerService.IsMutedStateChangedAction = isMuted => IsMuted = isMuted;
 
-        PlayerService.ChangeVolume(AudioVolume.Create(Volume));
+        _playerService.ChangeVolume(AudioVolume.Create(Volume));
     }
 
     private void StopVideo()
     {
         CurrentPosition = new TimeMs(0);
-        PlayerService.Stop();
+        _playerService.Stop();
     }
 
     private async Task CutVideo()
@@ -94,15 +96,15 @@ public partial class MainWindowViewModel : ViewModelBase
             Log.Warning("Video file description is null");
             return;
         }
-        
+
         var range = MediaRange.Create(TrimStart, TrimEnd);
         var inputPath = _openedFileDescription.Uri.LocalPath;
         var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.mkv";
-        
+
         Log.Information($"input path: {inputPath}, description: {_openedFileDescription}");
         Log.Information($"output path: {outputPath}");
         Log.Information($"range: {range}");
-        
+
         await VideoProcessor.CutVideo(range, inputPath, outputPath);
     }
 
@@ -113,15 +115,15 @@ public partial class MainWindowViewModel : ViewModelBase
             Log.Warning("Video file description is null");
             return;
         }
-        
+
         var range = MediaRange.Create(TrimStart, TrimEnd);
         var inputPath = _openedFileDescription.Uri.LocalPath;
         var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.gif";
-        
+
         Log.Information($"input path: {inputPath}, description: {_openedFileDescription}");
         Log.Information($"output path: {outputPath}");
         Log.Information($"range: {range}");
-        
+
         await VideoProcessor.GenerateGif(range, inputPath, outputPath);
     }
 
@@ -132,7 +134,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (path == null)
             return;
 
-        _openedFileDescription = await PlayerService.OpenAsync(path);
+        _openedFileDescription = await _playerService.OpenAsync(path);
         MediaDuration = _openedFileDescription.Duration;
         CurrentPosition = new TimeMs(0);
     }
@@ -142,7 +144,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(path))
             return;
 
-        var fileDescription = await PlayerService.OpenAsync(new Uri(path));
+        var fileDescription = await _playerService.OpenAsync(new Uri(path));
         MediaDuration = fileDescription.Duration;
         CurrentPosition = new TimeMs(0);
     }
@@ -152,12 +154,14 @@ public partial class MainWindowViewModel : ViewModelBase
         if (_suppressPlayerSeek)
             return;
 
-        PlayerService.ChangeTimePosition(value.Value);
+        _playerService.ChangeTimePosition(value.Value);
         UpdateDisplayedTime();
     }
 
     private void UpdateDisplayedTime() =>
         DisplayedTime = $"{CurrentPosition.Formatted()} / {MediaDuration.Formatted()}";
 
-    partial void OnVolumeChanged(int value) => PlayerService.ChangeVolume(AudioVolume.Create(value));
+    partial void OnVolumeChanged(int value) => _playerService.ChangeVolume(AudioVolume.Create(value));
+
+    public void AttachPlayer(VideoView videoView) => _playerService.AttachPlayer(videoView);
 }
