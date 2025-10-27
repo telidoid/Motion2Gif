@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Motion2Gif.Player;
@@ -30,12 +31,32 @@ public static class MediaRangeExtensions
 
 public static class VideoProcessor
 {
-    public static async Task CutVideo(MediaRange range, string input, string output, string ffmpegPath = "ffmpeg")
+    public static async Task CutVideo(
+        CutVideoJob jobModel,
+        IProgress<JobProgress>? progress = null,
+        CancellationToken ct = default,
+        string ffmpegPath = "ffmpeg")
+        => await CutVideo(
+            jobModel.MediaRange,
+            jobModel.FilePath.LocalPath,
+            jobModel.OutputFilePath,
+            progress: progress,
+            ct: ct,
+            ffmpegPath: ffmpegPath);
+
+    public static async Task CutVideo(
+        MediaRange range,
+        string input,
+        string output,
+        IProgress<JobProgress>? progress = null,
+        CancellationToken ct = default,
+        string ffmpegPath = "ffmpeg")
     {
         var start = range.Start.FormatForProcessor();
         var duration = range.GetDuration().FormatForProcessor();
 
-        var args = $"-hide_banner -i \"{input}\" -ss {start} -t {duration} -c copy -map 0 -movflags +faststart \"{output}\"";
+        var args =
+            $"-hide_banner -i \"{input}\" -ss {start} -t {duration} -c copy -map 0 -movflags +faststart \"{output}\"";
 
         Log.Information("ffmpeg args: " + args);
 
@@ -62,14 +83,27 @@ public static class VideoProcessor
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        await process.WaitForExitAsync();
+        await process.WaitForExitAsync(ct);
 
         if (process.ExitCode != 0)
         {
             Log.Error("Ffmpeg exited with code " + process.ExitCode);
         }
     }
-    
+
+    public static async Task GenerateGif(
+        GenerateGifJob jobModel,
+        IProgress<JobProgress>? progress = null,
+        CancellationToken ct = default,
+        string ffmpegPath = "ffmpeg")
+        => await CutVideo(
+            jobModel.MediaRange,
+            jobModel.FilePath.LocalPath,
+            jobModel.OutputFilePath,
+            progress: progress,
+            ct: ct,
+            ffmpegPath: ffmpegPath);
+
     public static async Task GenerateGif(
         MediaRange range,
         string input,
@@ -77,6 +111,7 @@ public static class VideoProcessor
         string ffmpegPath = "ffmpeg",
         int fps = 12,
         int maxWidth = 480,
+        IProgress<JobProgress>? progress = null,
         CancellationToken ct = default)
     {
         if (range is null) throw new ArgumentNullException(nameof(range));
@@ -85,8 +120,8 @@ public static class VideoProcessor
         if (fps <= 0) throw new ArgumentOutOfRangeException(nameof(fps));
         if (maxWidth <= 0) throw new ArgumentOutOfRangeException(nameof(maxWidth));
 
-        var start    = range.Start.FormatForProcessor();            // "HH:MM:SS.mmm"
-        var duration = range.GetDuration().FormatForProcessor();    // "HH:MM:SS.mmm"
+        var start = range.Start.FormatForProcessor(); // "HH:MM:SS.mmm"
+        var duration = range.GetDuration().FormatForProcessor(); // "HH:MM:SS.mmm"
 
         // Один проход: сплитим поток → генерим палитру → применяем палитру
         // - точный seek: -i ... -ss ... -t ...
@@ -104,7 +139,7 @@ public static class VideoProcessor
             CreateNoWindow = true
         };
 
-        psi.ArgumentList.Add("-y");                // перезаписывать выход
+        psi.ArgumentList.Add("-y"); // перезаписывать выход
         psi.ArgumentList.Add("-hide_banner");
 
         // вход
@@ -120,7 +155,8 @@ public static class VideoProcessor
         // фильтр для GIF
         // Пример: [0:v]fps=12,scale=480:-1:flags=lanczos,split[v1][v2];[v1]palettegen=stats_mode=diff[p];[v2][p]paletteuse=dither=sierra2_4a
         psi.ArgumentList.Add("-filter_complex");
-        psi.ArgumentList.Add($"[0:v]fps={fps},scale={maxWidth}:-1:flags=lanczos,split[v1][v2];[v1]palettegen=stats_mode=diff[p];[v2][p]paletteuse=dither=sierra2_4a");
+        psi.ArgumentList.Add(
+            $"[0:v]fps={fps},scale={maxWidth}:-1:flags=lanczos,split[v1][v2];[v1]palettegen=stats_mode=diff[p];[v2][p]paletteuse=dither=sierra2_4a");
 
         // без аудио
         psi.ArgumentList.Add("-an");
@@ -138,10 +174,16 @@ public static class VideoProcessor
 
         using var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
 
-        process.OutputDataReceived += (_, e) => { if (e.Data is not null) Console.WriteLine(e.Data); };
-        process.ErrorDataReceived  += (_, e) => { if (e.Data is not null) Console.WriteLine(e.Data); };
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (e.Data is not null) Console.WriteLine(e.Data);
+        };
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (e.Data is not null) Console.WriteLine(e.Data);
+        };
 
-        
+
         if (!process.Start())
         {
             Log.Error("Could not start ffmpeg");
@@ -158,10 +200,21 @@ public static class VideoProcessor
                 if (!process.HasExited)
                 {
                     process.CloseMainWindow();
-                    _ = Task.Delay(500).ContinueWith(_ => { try { if (!process.HasExited) process.Kill(true); } catch { } });
+                    _ = Task.Delay(500).ContinueWith(_ =>
+                    {
+                        try
+                        {
+                            if (!process.HasExited) process.Kill(true);
+                        }
+                        catch
+                        {
+                        }
+                    });
                 }
             }
-            catch { }
+            catch
+            {
+            }
         });
 
         await process.WaitForExitAsync(ct).ConfigureAwait(false);
