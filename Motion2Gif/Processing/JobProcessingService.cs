@@ -62,10 +62,10 @@ public class JobProcessingService
             switch (job.Model)
             {
                 case CutVideoJob cutVideoJobModel:
-                    await VideoProcessor.CutVideo(cutVideoJobModel, ct: job.CancellationToken);
+                    await VideoProcessor.CutVideo(cutVideoJobModel, progress: job.Progress, ct: job.CancellationToken);
                     break;
                 case GenerateGifJob generateGifJobModel:
-                    await VideoProcessor.GenerateGif(generateGifJobModel, ct: job.CancellationToken);
+                    await VideoProcessor.GenerateGif(generateGifJobModel, progress: job.Progress, ct: job.CancellationToken);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -8,7 +8,6 @@ using LibVLCSharp.Avalonia;
 using Motion2Gif.Other;
 using Motion2Gif.Player;
 using Motion2Gif.Processing;
-using Motion2Gif.VLC;
 using Serilog;
 
 namespace Motion2Gif.ViewModels;
@@ -17,6 +16,7 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IVideoPlayerService _playerService;
     private readonly IFilePickerService _filePickerService;
+    private readonly JobProcessingService _jobProcessingService;
 
     public ICommand OpenVideoFileCmd { get; }
     public ICommand ToggleMuteCmd { get; }
@@ -41,17 +41,21 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private VideoFileDescription? _openedFileDescription = null;
 
-    public MainWindowViewModel(IVideoPlayerService playerService, IFilePickerService filePickerService)
+    public MainWindowViewModel(
+        IVideoPlayerService playerService, 
+        IFilePickerService filePickerService,
+        JobProcessingService jobProcessingService)
     {
         _playerService = playerService;
         _filePickerService = filePickerService;
+        _jobProcessingService = jobProcessingService;
 
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
         ToggleMuteCmd = new RelayCommand(() => _playerService.ToggleMute());
         TogglePlayCmd = new RelayCommand(() => _playerService.TogglePlay());
         StopCmd = new RelayCommand(StopVideo);
-        CutVideoCmd = new AsyncRelayCommand(CutVideo);
-        GenerateGifCmd = new AsyncRelayCommand(GenerateGif);
+        CutVideoCmd = new RelayCommand(CutVideo);
+        GenerateGifCmd = new RelayCommand(GenerateGif);
 
         _playerService.PlayerTimeChangedAction = l =>
         {
@@ -89,7 +93,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _playerService.Stop();
     }
 
-    private async Task CutVideo()
+    private void CutVideo()
     {
         if (_openedFileDescription is null)
         {
@@ -98,17 +102,18 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         var range = MediaRange.Create(TrimStart, TrimEnd);
-        var inputPath = _openedFileDescription.Uri.LocalPath;
         var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.mkv";
 
-        Log.Information($"input path: {inputPath}, description: {_openedFileDescription}");
-        Log.Information($"output path: {outputPath}");
-        Log.Information($"range: {range}");
-
-        await VideoProcessor.CutVideo(range, inputPath, outputPath);
+        var progress = new Progress<JobProgress>(pg =>
+        {
+            Log.Information("Progress: {Progress}", pg);
+        });
+        var jobId = _jobProcessingService.ScheduleJob(new CutVideoJob(range, _openedFileDescription.Uri, outputPath), progress);
+        
+        Log.Information("Job started. Id: {JobId}", jobId);
     }
 
-    private async Task GenerateGif()
+    private void GenerateGif()
     {
         if (_openedFileDescription is null)
         {
@@ -117,14 +122,15 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         var range = MediaRange.Create(TrimStart, TrimEnd);
-        var inputPath = _openedFileDescription.Uri.LocalPath;
         var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.gif";
 
-        Log.Information($"input path: {inputPath}, description: {_openedFileDescription}");
-        Log.Information($"output path: {outputPath}");
-        Log.Information($"range: {range}");
+        var progress = new Progress<JobProgress>(pg =>
+        {
+            Log.Information("Progress: {Progress}", pg);
+        });
+        var jobId = _jobProcessingService.ScheduleJob(new GenerateGifJob(range, _openedFileDescription.Uri, outputPath), progress);
 
-        await VideoProcessor.GenerateGif(range, inputPath, outputPath);
+        Log.Information("Job started. Id: {JobId}", jobId);
     }
 
     private async Task OnVideoFileOpened()

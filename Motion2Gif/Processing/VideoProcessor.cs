@@ -44,7 +44,7 @@ public static class VideoProcessor
             ct: ct,
             ffmpegPath: ffmpegPath);
 
-    public static async Task CutVideo(
+    private static async Task CutVideo(
         MediaRange range,
         string input,
         string output,
@@ -54,11 +54,11 @@ public static class VideoProcessor
     {
         var start = range.Start.FormatForProcessor();
         var duration = range.GetDuration().FormatForProcessor();
+        var total = range.GetDuration().TimeSpan();
 
         var args =
-            $"-hide_banner -i \"{input}\" -ss {start} -t {duration} -c copy -map 0 -movflags +faststart \"{output}\"";
-
-        Log.Information("ffmpeg args: " + args);
+            $"-hide_banner -ss {start} -t {duration} -i \"{input}\" -c copy -map 0 -movflags " +
+            $"+faststart -progress pipe:1 \"{output}\"";
 
         var psi = new ProcessStartInfo
         {
@@ -70,24 +70,71 @@ public static class VideoProcessor
             CreateNoWindow = true,
         };
 
-        using var process = Process.Start(psi);
+        var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
 
-        if (process == null)
+        await using var reg = ct.Register(() =>
         {
-            Log.Error("Could not start ffmpeg");
+            progress?.Report(new JobProgress(0, TimeSpan.Zero, total, JobState.Canceled, "canceled"));
+
+            try
+            {
+                if (!process.HasExited)
+                    process.Kill(entireProcessTree: true);
+            }
+            catch
+            {
+                // ignored
+            }
+        });
+
+        if (!process.Start())
+        {
+            Log.Error("Could not start ffmpeg.");
+            progress?.Report(new JobProgress(0, TimeSpan.Zero, total, JobState.Failed, "could not start"));
             return;
         }
 
-        process.OutputDataReceived += (s, e) => Console.WriteLine(e.Data);
-        process.ErrorDataReceived += (s, e) => Console.WriteLine(e.Data);
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
+        _ = Task.Run(async () =>
+        {
+            while (await process.StandardError.ReadLineAsync(ct) is
+               {
+                   /* ignored */
+               } _) ;
+        }, ct);
+
+        var processed = TimeSpan.Zero;
+
+        while (!process.HasExited && await process.StandardOutput.ReadLineAsync(ct) is { } line)
+        {
+            // Log.Information($"line: {line}");
+            var keyVal = line.Split('=');
+            var (key, value) = (keyVal[0], keyVal[1]);
+
+            if (key == "out_time_ms" && long.TryParse(value, out var outTimeMs))
+            {
+                processed = TimeSpan.FromMicroseconds(outTimeMs);
+                var percent = total.TotalMilliseconds > 0
+                    ? Math.Clamp(processed.TotalMilliseconds * 100.0 / total.TotalMilliseconds, 0, 100)
+                    : 100.0;
+
+                progress?.Report(new JobProgress(percent, processed, total, JobState.Running, "continue"));
+            }
+            else if (key == "progress")
+            {
+                var percent = value == "end" ? 100.0
+                    : total.TotalMilliseconds > 0 ? Math.Clamp(processed.TotalMilliseconds * 100.0 / total.TotalMilliseconds, 0, 100)
+                    : 100.0;
+                
+                progress?.Report(new JobProgress(percent, processed, total, JobState.Completed, value));
+            }
+        }
 
         await process.WaitForExitAsync(ct);
 
-        if (process.ExitCode != 0)
+        if (process.ExitCode != 0 && !ct.IsCancellationRequested)
         {
-            Log.Error("Ffmpeg exited with code " + process.ExitCode);
+            Log.Error("ffmpeg exited with code {Code}", process.ExitCode);
+            progress?.Report(new JobProgress(0, processed, total, JobState.Failed, $"exit code: {process.ExitCode}"));
         }
     }
 
@@ -96,7 +143,7 @@ public static class VideoProcessor
         IProgress<JobProgress>? progress = null,
         CancellationToken ct = default,
         string ffmpegPath = "ffmpeg")
-        => await CutVideo(
+        => await GenerateGif(
             jobModel.MediaRange,
             jobModel.FilePath.LocalPath,
             jobModel.OutputFilePath,
@@ -104,7 +151,7 @@ public static class VideoProcessor
             ct: ct,
             ffmpegPath: ffmpegPath);
 
-    public static async Task GenerateGif(
+    private static async Task GenerateGif(
         MediaRange range,
         string input,
         string output,
