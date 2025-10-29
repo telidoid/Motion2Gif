@@ -4,7 +4,6 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
 using Motion2Gif.ViewModels;
-using Serilog;
 
 namespace Motion2Gif.Views;
 

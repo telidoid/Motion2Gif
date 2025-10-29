@@ -4,7 +4,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
-using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Motion2Gif.Other;
@@ -39,7 +38,7 @@ internal static class DependencyInjectionExtensions
                     return win is null ? throw new InvalidOperationException("No active window.") : win.StorageProvider;
                 }
 
-                throw new InvalidOperationException($"Unsupported lifetime: {lifetime!.GetType()}");
+                throw new InvalidOperationException($"Unsupported lifetime: {lifetime.GetType()}");
             });
 
             services.AddSingleton<Func<Window>>(_ => ()=>

@@ -1,13 +1,10 @@
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Motion2Gif.Other;
 using Motion2Gif.ViewModels;
 using Motion2Gif.Views;
-using Serilog;
 
 namespace Motion2Gif;
 
