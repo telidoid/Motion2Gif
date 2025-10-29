@@ -38,7 +38,7 @@ public static class VideoProcessor
             $"-hide_banner -ss {start} -t {duration} -i \"{input}\" -c copy -map 0 -movflags " +
             $"+faststart -progress pipe:1 \"{output}\"";
 
-        var psi = new ProcessStartInfo
+        var psi = new ProcessStartInfo  
         {
             FileName = ffmpegPath,
             Arguments = args,
@@ -206,8 +206,7 @@ public static class VideoProcessor
         {
             if (e.Data is not null) Console.WriteLine(e.Data);
         };
-
-
+        
         if (!process.Start())
         {
             Log.Error("Could not start ffmpeg");
@@ -217,7 +216,7 @@ public static class VideoProcessor
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        using var reg = ct.Register(() =>
+        await using var reg = ct.Register(() =>
         {
             try
             {

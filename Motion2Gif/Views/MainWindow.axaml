@@ -13,11 +13,11 @@
         x:DataType="vm:MainWindowViewModel"
         Title="Motion2Gif"
         Icon="/Assets/png/Motion2Gif_M2GF_128.png">
-    
+
     <Design.DataContext>
         <vm:DesignMainWindowViewModel></vm:DesignMainWindowViewModel>
     </Design.DataContext>
-    
+
     <Window.Styles>
         <Style Selector="PathIcon.play">
             <Setter Property="Data" Value="{StaticResource play_regular}" />
@@ -33,106 +33,117 @@
         </Style>
     </Window.Styles>
 
-    <DockPanel>
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-            <Menu Height="20" FontSize="12">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Open..." Command="{Binding OpenVideoFileCmd}"></MenuItem>
-                </MenuItem>
-                <MenuItem Header="_Export">
-                    <MenuItem Header="Cut video" Command="{Binding CutVideoCmd}"></MenuItem>
-                    <MenuItem Header="To GIF" Command="{Binding GenerateGifCmd}"></MenuItem>
-                </MenuItem>
-            </Menu>
-        </StackPanel>
+    <Panel>
+        <DockPanel>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                <Menu Height="20" FontSize="12">
+                    <MenuItem Header="_File">
+                        <MenuItem Header="_Open..." Command="{Binding OpenVideoFileCmd}"></MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="_Export">
+                        <MenuItem Header="Cut video" Command="{Binding CutVideoCmd}"></MenuItem>
+                        <MenuItem Header="To GIF" Command="{Binding GenerateGifCmd}"></MenuItem>
+                    </MenuItem>
+                </Menu>
+            </StackPanel>
 
-        <StackPanel DockPanel.Dock="Bottom" Margin="5" Orientation="Horizontal" HorizontalAlignment="Right">
-            <TextBlock VerticalAlignment="Center"
-                       Text="{Binding DisplayedTime}"
-                       FontSize="10" />
-        </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom" Margin="5" Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock VerticalAlignment="Center"
+                           Text="{Binding DisplayedTime}"
+                           FontSize="10" />
+            </StackPanel>
 
-        <Grid RowDefinitions="*,Auto,Auto">
-            <vlc:VideoView Grid.Row="0" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" />
-            </vlc:VideoView>
+            <Grid RowDefinitions="*,Auto,Auto">
+                <vlc:VideoView Grid.Row="0"
+                               x:Name="VideoView"
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Stretch">
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" />
+                </vlc:VideoView>
 
-            <Grid Grid.Row="1" Margin="10 0" x:Name="TimelineContainer">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
-                    <ScrollViewer.Styles>
-                        <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
-                            <Setter Property="ClipToBounds" Value="False" />
-                        </Style>
-                    </ScrollViewer.Styles>
+                <Grid Grid.Row="1" Margin="10 0" x:Name="TimelineContainer">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
+                        <ScrollViewer.Styles>
+                            <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
+                                <Setter Property="ClipToBounds" Value="False" />
+                            </Style>
+                        </ScrollViewer.Styles>
 
-                    <Grid x:Name="TimelineGrid"
-                          Height="70"
-                          RowDefinitions="*, *"
-                          ClipToBounds="False"
-                          Background="Transparent">
+                        <Grid x:Name="TimelineGrid"
+                              Height="70"
+                              RowDefinitions="*, *"
+                              ClipToBounds="False"
+                              Background="Transparent">
 
-                        <mediaTimelineControl1:TimelineControl
-                            Grid.Row="0"
-                            CurrentTimePosition="{Binding CurrentPosition}"
-                            MediaDuration="{Binding MediaDuration}" />
+                            <mediaTimelineControl1:TimelineControl
+                                Grid.Row="0"
+                                CurrentTimePosition="{Binding CurrentPosition}"
+                                MediaDuration="{Binding MediaDuration}" />
 
-                        <rangeSelectorControl:TimeRangeSelector
-                            Grid.Row="1"
-                            Min="{Binding SelectorMin}"
-                            Max="{Binding MediaDuration}"
-                            TrimStart="{Binding TrimStart}"
-                            TrimEnd="{Binding TrimEnd}"
-                            ClipToBounds="False"
-                            ZIndex="1" />
+                            <rangeSelectorControl:TimeRangeSelector
+                                Grid.Row="1"
+                                Min="{Binding SelectorMin}"
+                                Max="{Binding MediaDuration}"
+                                TrimStart="{Binding TrimStart}"
+                                TrimEnd="{Binding TrimEnd}"
+                                ClipToBounds="False"
+                                ZIndex="1" />
 
-                        <mediaTimelineControl1:MediaTimeline
-                            Grid.Row="1"
-                            CurrentTimePosition="{Binding CurrentPosition}"
-                            MediaDuration="{Binding MediaDuration}" />
-                    </Grid>
-                </ScrollViewer>
+                            <mediaTimelineControl1:MediaTimeline
+                                Grid.Row="1"
+                                CurrentTimePosition="{Binding CurrentPosition}"
+                                MediaDuration="{Binding MediaDuration}" />
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto,*" Margin="10 0">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Button Command="{Binding TogglePlayCmd}" Cursor="Hand">
+                            <PathIcon Classes.play="{Binding !IsPlaying}"
+                                      Classes.pause="{Binding IsPlaying}" />
+                        </Button>
+
+                        <Border Margin="5 0 0 0" />
+
+                        <Button Command="{Binding StopCmd}" Cursor="Hand">
+                            <PathIcon Data="{StaticResource stop_regular}"></PathIcon>
+                        </Button>
+
+                        <Border Margin="5 0 0 0" />
+
+                        <Button Command="{Binding ExportCmd}" Cursor="Hand">
+                            Export
+                        </Button>
+                    </StackPanel>
+
+                    <Border Grid.Column="1" />
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Click="AutofitWidth_OnClick" Cursor="Hand">
+                            <PathIcon Data="{StaticResource arrow_autofit_width_regular}" />
+                        </Button>
+
+                        <Border Margin="5 0 0 0" />
+
+                        <Button Click="ZoomIn_OnClick" Cursor="Hand">
+                            <PathIcon Data="{StaticResource zoom_in_regular}" />
+                        </Button>
+
+                        <Border Margin="5 0 0 0" />
+
+                        <Button Click="ZoomOut_OnClick" Cursor="Hand">
+                            <PathIcon Data="{StaticResource zoom_out_regular}" />
+                        </Button>
+
+                        <Button Margin="10 0 5 0" Command="{Binding ToggleMuteCmd}" Cursor="Hand">
+                            <PathIcon Classes.muted="{Binding IsMuted}"
+                                      Classes.unmuted="{Binding !IsMuted}" />
+                        </Button>
+                        <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" Cursor="Hand" />
+                    </StackPanel>
+                </Grid>
             </Grid>
-
-            <Grid Grid.Row="2" ColumnDefinitions="*,Auto,*" Margin="10 0">
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Button Command="{Binding TogglePlayCmd}" Cursor="Hand">
-                        <PathIcon Classes.play="{Binding !IsPlaying}"
-                                  Classes.pause="{Binding IsPlaying}" />
-                    </Button>
-
-                    <Border Margin="5 0 0 0" />
-
-                    <Button Command="{Binding StopCmd}" Cursor="Hand">
-                        <PathIcon Data="{StaticResource stop_regular}"></PathIcon>
-                    </Button>
-                </StackPanel>
-
-                <Border Grid.Column="1" />
-
-                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Click="AutofitWidth_OnClick" Cursor="Hand">
-                        <PathIcon Data="{StaticResource arrow_autofit_width_regular}" />
-                    </Button>
-
-                    <Border Margin="5 0 0 0" />
-
-                    <Button Click="ZoomIn_OnClick" Cursor="Hand">
-                        <PathIcon Data="{StaticResource zoom_in_regular}" />
-                    </Button>
-
-                    <Border Margin="5 0 0 0" />
-
-                    <Button Click="ZoomOut_OnClick" Cursor="Hand">
-                        <PathIcon Data="{StaticResource zoom_out_regular}" />
-                    </Button>
-
-                    <Button Margin="10 0 5 0" Command="{Binding ToggleMuteCmd}" Cursor="Hand">
-                        <PathIcon Classes.muted="{Binding IsMuted}"
-                                  Classes.unmuted="{Binding !IsMuted}" />
-                    </Button>
-                    <Slider Width="80" Minimum="0" Maximum="100" Value="{Binding Volume}" Cursor="Hand" />
-                </StackPanel>
-            </Grid>
-        </Grid>
-    </DockPanel>
+        </DockPanel>
+    </Panel>
 </Window>

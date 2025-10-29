@@ -17,6 +17,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IVideoPlayerService _playerService;
     private readonly IFilePickerService _filePickerService;
     private readonly IJobProcessingService _jobProcessingService;
+    private readonly IDialogService _dialogService;
 
     public ICommand OpenVideoFileCmd { get; }
     public ICommand ToggleMuteCmd { get; }
@@ -24,6 +25,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public ICommand StopCmd { get; }
     public ICommand CutVideoCmd { get; }
     public ICommand GenerateGifCmd { get; }
+    public ICommand ExportCmd { get; }
 
     [ObservableProperty] private TimeMs _currentPosition = new(0);
     [ObservableProperty] private TimeMs _mediaDuration = new(0);
@@ -44,11 +46,13 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(
         IVideoPlayerService playerService, 
         IFilePickerService filePickerService,
-        IJobProcessingService jobProcessingService)
+        IJobProcessingService jobProcessingService,
+        IDialogService dialogService)
     {
         _playerService = playerService;
         _filePickerService = filePickerService;
         _jobProcessingService = jobProcessingService;
+        _dialogService = dialogService;
 
         OpenVideoFileCmd = new AsyncRelayCommand(OnVideoFileOpened);
         ToggleMuteCmd = new RelayCommand(() => _playerService.ToggleMute());
@@ -56,6 +60,10 @@ public partial class MainWindowViewModel : ViewModelBase
         StopCmd = new RelayCommand(StopVideo);
         CutVideoCmd = new RelayCommand(CutVideo);
         GenerateGifCmd = new RelayCommand(GenerateGif);
+        ExportCmd = new AsyncRelayCommand(async () =>
+        {
+            await _dialogService.ShowDialog<ExportDialogViewModel>();
+        });
 
         _playerService.PlayerTimeChangedAction = l =>
         {

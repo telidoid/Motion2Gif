@@ -7,10 +7,17 @@ namespace Motion2Gif.ViewModels;
 public class DesignMainWindowViewModel(
     IVideoPlayerService playerService,
     IFilePickerService filePickerService,
-    IJobProcessingService jobProcessingService)
-    : MainWindowViewModel(playerService, filePickerService, jobProcessingService)
+    IJobProcessingService jobProcessingService,
+    IDialogService dialogService)
+    : MainWindowViewModel(playerService, filePickerService, jobProcessingService, dialogService)
 {
-    public DesignMainWindowViewModel() : this(new DesignVideoPlayerService(), new DesignFilePickerService(), new DesignJobProcessingService())
+    public DesignMainWindowViewModel() 
+        : this(
+            new DesignVideoPlayerService(), 
+            new DesignFilePickerService(), 
+            new DesignJobProcessingService(),
+            new DesignDialogService()
+            )
     {
     }
 }

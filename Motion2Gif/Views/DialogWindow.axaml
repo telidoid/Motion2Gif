@@ -1,0 +1,21 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Motion2Gif.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Motion2Gif.Views.DialogWindow"
+        Title="DialogWindow"
+        SizeToContent="WidthAndHeight"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterOwner"
+        x:DataType="vm:DialogViewModel"
+        MinWidth="300">
+    <Design.DataContext>
+        <vm:ExportDialogViewModel></vm:ExportDialogViewModel>
+    </Design.DataContext>
+
+    <Border Padding="16">
+        <ContentControl Content="{Binding}" />
+    </Border>
+</Window>

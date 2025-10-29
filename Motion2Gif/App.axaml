@@ -1,13 +1,18 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Motion2Gif"
              x:Class="Motion2Gif.App"
              RequestedThemeVariant="Default">
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-    
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceInclude Source="avares://Motion2Gif/Fonts.axaml"/>
+                <ResourceInclude Source="avares://Motion2Gif/Fonts.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
@@ -15,11 +20,28 @@
     <Application.Styles>
         <FluentTheme>
             <FluentTheme.Palettes>
-                <ColorPaletteResources x:Key="Light" Accent="#ff0073cf" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ffcccccc" BaseMedium="#ff898989" BaseMediumHigh="#ff5d5d5d" BaseMediumLow="#ff737373" ChromeAltLow="#ff5d5d5d" ChromeBlackHigh="Black" ChromeBlackLow="#ffcccccc" ChromeBlackMedium="#ff5d5d5d" ChromeBlackMediumLow="#ff898989" ChromeDisabledHigh="#ffcccccc" ChromeDisabledLow="#ff898989" ChromeGray="#ff737373" ChromeHigh="#ffcccccc" ChromeLow="#ffececec" ChromeMedium="#ffe6e6e6" ChromeMediumLow="#ffececec" ChromeWhite="White" ListLow="#ffe6e6e6" ListMedium="#ffcccccc" RegionColor="#fff5f3f0" />
-                <ColorPaletteResources x:Key="Dark" Accent="#ff0073cf" AltHigh="Black" AltLow="Black" AltMedium="Black" AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff1e2228" BaseMedium="#ff8b919d" BaseMediumHigh="#ffa6adba" BaseMediumLow="#ff545a62" ChromeAltLow="#ffa6adba" ChromeBlackHigh="Black" ChromeBlackLow="#ffa6adba" ChromeBlackMedium="Black" ChromeBlackMediumLow="Black" ChromeDisabledHigh="#ff1e2228" ChromeDisabledLow="#ff8b919d" ChromeGray="#ff707580" ChromeHigh="#ff707580" ChromeLow="#ff060f25" ChromeMedium="#ff0c1426" ChromeMediumLow="#ff181d27" ChromeWhite="White" ListLow="#ff0c1426" ListMedium="#ff1e2228" RegionColor="#ff0f1113" />
+                <ColorPaletteResources x:Key="Light" Accent="#ff0073cf" AltHigh="White" AltLow="White"
+                                       AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black"
+                                       BaseLow="#ffcccccc" BaseMedium="#ff898989" BaseMediumHigh="#ff5d5d5d"
+                                       BaseMediumLow="#ff737373" ChromeAltLow="#ff5d5d5d" ChromeBlackHigh="Black"
+                                       ChromeBlackLow="#ffcccccc" ChromeBlackMedium="#ff5d5d5d"
+                                       ChromeBlackMediumLow="#ff898989" ChromeDisabledHigh="#ffcccccc"
+                                       ChromeDisabledLow="#ff898989" ChromeGray="#ff737373" ChromeHigh="#ffcccccc"
+                                       ChromeLow="#ffececec" ChromeMedium="#ffe6e6e6" ChromeMediumLow="#ffececec"
+                                       ChromeWhite="White" ListLow="#ffe6e6e6" ListMedium="#ffcccccc"
+                                       RegionColor="#fff5f3f0" />
+                <ColorPaletteResources x:Key="Dark" Accent="#ff0073cf" AltHigh="Black" AltLow="Black" AltMedium="Black"
+                                       AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff1e2228"
+                                       BaseMedium="#ff8b919d" BaseMediumHigh="#ffa6adba" BaseMediumLow="#ff545a62"
+                                       ChromeAltLow="#ffa6adba" ChromeBlackHigh="Black" ChromeBlackLow="#ffa6adba"
+                                       ChromeBlackMedium="Black" ChromeBlackMediumLow="Black"
+                                       ChromeDisabledHigh="#ff1e2228" ChromeDisabledLow="#ff8b919d"
+                                       ChromeGray="#ff707580" ChromeHigh="#ff707580" ChromeLow="#ff060f25"
+                                       ChromeMedium="#ff0c1426" ChromeMediumLow="#ff181d27" ChromeWhite="White"
+                                       ListLow="#ff0c1426" ListMedium="#ff1e2228" RegionColor="#ff0f1113" />
             </FluentTheme.Palettes>
         </FluentTheme>
-        
+
         <StyleInclude Source="avares://Motion2Gif/Icons.axaml"></StyleInclude>
     </Application.Styles>
 </Application>

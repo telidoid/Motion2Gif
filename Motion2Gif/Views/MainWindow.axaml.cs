@@ -1,13 +1,10 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
-using Motion2Gif.Other;
-using Motion2Gif.Processing;
 using Motion2Gif.ViewModels;
-using Motion2Gif.VLC;
+using Serilog;
 
 namespace Motion2Gif.Views;
 
