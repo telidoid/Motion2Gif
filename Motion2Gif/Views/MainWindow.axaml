@@ -41,10 +41,6 @@
                     <MenuItem Header="_File">
                         <MenuItem Header="_Open..." Command="{Binding OpenVideoFileCmd}"></MenuItem>
                     </MenuItem>
-                    <MenuItem Header="_Export">
-                        <MenuItem Header="Cut video" Command="{Binding CutVideoCmd}"></MenuItem>
-                        <MenuItem Header="To GIF" Command="{Binding GenerateGifCmd}"></MenuItem>
-                    </MenuItem>
                 </Menu>
             </StackPanel>
 

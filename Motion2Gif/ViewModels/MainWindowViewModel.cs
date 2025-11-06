@@ -23,8 +23,6 @@ public partial class MainWindowViewModel : ViewModelBase
     public ICommand ToggleMuteCmd { get; }
     public ICommand TogglePlayCmd { get; }
     public ICommand StopCmd { get; }
-    public ICommand CutVideoCmd { get; }
-    public ICommand GenerateGifCmd { get; }
     public ICommand ExportCmd { get; }
 
     [ObservableProperty] private TimeMs _currentPosition = new(0);
@@ -44,7 +42,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private VideoFileDescription? _openedFileDescription = null;
 
     public MainWindowViewModel(
-        IVideoPlayerService playerService, 
+        IVideoPlayerService playerService,
         IFilePickerService filePickerService,
         IJobProcessingService jobProcessingService,
         IDialogService dialogService)
@@ -58,11 +56,26 @@ public partial class MainWindowViewModel : ViewModelBase
         ToggleMuteCmd = new RelayCommand(() => _playerService.ToggleMute());
         TogglePlayCmd = new RelayCommand(() => _playerService.TogglePlay());
         StopCmd = new RelayCommand(StopVideo);
-        CutVideoCmd = new RelayCommand(CutVideo);
-        GenerateGifCmd = new RelayCommand(GenerateGif);
         ExportCmd = new AsyncRelayCommand(async () =>
         {
-            await _dialogService.ShowDialog<ExportDialogViewModel>();
+            var vm = await _dialogService.ShowDialog<ExportDialogViewModel>();
+            var range = MediaRange.Create(TrimStart, TrimEnd);
+            var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.mkv";
+
+            if (_openedFileDescription == null)
+                return;
+
+            var progress = new Progress<JobProgress>(pg =>
+                Log.Information("Progress: {Progress}", pg));
+
+            if (vm.Result is VideoCutConfigViewModel cutConfig)
+                _jobProcessingService.ScheduleJob(new CutVideoJob(range, _openedFileDescription.Uri, outputPath),
+                    progress);
+
+
+            if (vm.Result is GenGifConfigViewModel gifConfig)
+                _jobProcessingService.ScheduleJob(new GenerateGifJob(range, _openedFileDescription.Uri, outputPath),
+                    progress);
         });
 
         _playerService.PlayerTimeChangedAction = l =>
@@ -99,46 +112,6 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         CurrentPosition = new TimeMs(0);
         _playerService.Stop();
-    }
-
-    private void CutVideo()
-    {
-        if (_openedFileDescription is null)
-        {
-            Log.Warning("Video file description is null");
-            return;
-        }
-
-        var range = MediaRange.Create(TrimStart, TrimEnd);
-        var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.mkv";
-
-        var progress = new Progress<JobProgress>(pg =>
-        {
-            Log.Information("Progress: {Progress}", pg);
-        });
-        var jobId = _jobProcessingService.ScheduleJob(new CutVideoJob(range, _openedFileDescription.Uri, outputPath), progress);
-        
-        Log.Information("Job started. Id: {JobId}", jobId);
-    }
-
-    private void GenerateGif()
-    {
-        if (_openedFileDescription is null)
-        {
-            Log.Warning("Video file description is null");
-            return;
-        }
-
-        var range = MediaRange.Create(TrimStart, TrimEnd);
-        var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.gif";
-
-        var progress = new Progress<JobProgress>(pg =>
-        {
-            Log.Information("Progress: {Progress}", pg);
-        });
-        var jobId = _jobProcessingService.ScheduleJob(new GenerateGifJob(range, _openedFileDescription.Uri, outputPath), progress);
-
-        Log.Information("Job started. Id: {JobId}", jobId);
     }
 
     private async Task OnVideoFileOpened()

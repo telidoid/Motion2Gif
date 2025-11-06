@@ -9,7 +9,7 @@ namespace Motion2Gif.Other;
 
 public class DialogService(IServiceProvider serviceProvider, Func<Window?> getOwnerFunc) : IDialogService
 {
-    public async Task ShowDialog<TVm>(Action<TVm>? configure = null)
+    public async Task<TVm> ShowDialog<TVm>(Action<TVm>? configure = null)
         where TVm : DialogViewModel
     {
         var owner = getOwnerFunc() ?? throw new NullReferenceException("No owner window");
@@ -20,5 +20,6 @@ public class DialogService(IServiceProvider serviceProvider, Func<Window?> getOw
         dialogWindow.DataContext = vm;
 
         await dialogWindow.ShowDialog(owner);
+        return vm;
     }
 }

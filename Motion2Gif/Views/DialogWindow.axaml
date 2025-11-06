@@ -10,15 +10,13 @@
         SystemDecorations="None"
         WindowStartupLocation="CenterOwner"
         x:DataType="vm:DialogViewModel"
-        MinWidth="200"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur,Blur,Transparent">
     <Design.DataContext>
         <vm:ExportDialogViewModel></vm:ExportDialogViewModel>
     </Design.DataContext>
 
-    <Border Padding="16" CornerRadius="6"
-            Background="{DynamicResource SystemChromeLowColor}">
+    <Border CornerRadius="6" Background="{DynamicResource SystemChromeLowColor}">
         <ContentControl Content="{Binding}" />
     </Border>
 </Window>
