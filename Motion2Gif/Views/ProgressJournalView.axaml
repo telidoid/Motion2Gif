@@ -6,16 +6,38 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Motion2Gif.Views.ProgressJournalView"
              x:DataType="vm:ProgressJournalViewModel">
-    <Border Background="Red" MinHeight="10" MinWidth="200" PointerPressed="InputElement_OnPointerPressed">
+    <StackPanel VerticalAlignment="Center"
+                MinHeight="10"
+                Width="200"
+                PointerPressed="InputElement_OnPointerPressed">
+        <TextBlock
+            Cursor="Hand"
+            Padding="10 0 10 0"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Text="{Binding TopText}"
+            FontSize="12" />
         <FlyoutBase.AttachedFlyout>
             <Flyout>
-                <StackPanel>
-                    <TextBlock Text="Progress 1 longer longer"/>
-                    <TextBlock Text="Progress 2"/>
-                    <TextBlock Text="Progress 3"/>
-                    <TextBlock Text="Progress 4"/>
-                </StackPanel>
+                <Panel Width="175">
+                    <ItemsControl ItemsSource="{Binding Jobs}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:JobViewModel">
+                                <Grid ColumnDefinitions="*,*">
+                                    <ProgressBar Grid.Column="0" 
+                                        ShowProgressText="True"
+                                        Value="{Binding Percentage}" />
+                                    <Button Grid.Column="1"
+                                        Command="{Binding RemoveCmd}"
+                                        CommandParameter="{Binding}"
+                                        Content="X" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock IsVisible="{Binding IsJobListEmpty}">Empty List</TextBlock>
+                </Panel>
             </Flyout>
         </FlyoutBase.AttachedFlyout>
-    </Border>
+    </StackPanel>
 </UserControl>

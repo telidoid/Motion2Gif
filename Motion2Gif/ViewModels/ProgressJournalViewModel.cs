@@ -1,15 +1,82 @@
-﻿using Motion2Gif.Processing;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Motion2Gif.Processing;
+using Serilog;
 
 namespace Motion2Gif.ViewModels;
 
-public class ProgressJournalViewModel : ViewModelBase
+public partial class ProgressJournalViewModel : ViewModelBase
 {
     private readonly IJobProcessingService _jobProcessingService;
+
+    public ObservableCollection<JobViewModel> Jobs { get; } = new();
+
+    [ObservableProperty] private bool _isJobListEmpty = true;
+    [ObservableProperty] private string _topText = "";
 
     public ProgressJournalViewModel(IJobProcessingService jobProcessingService)
     {
         _jobProcessingService = jobProcessingService;
+
+        _jobProcessingService.OnStateChanged += OnJobStateChanged;
+    }
+
+    private void OnJobStateChanged(Job job, JobProgress progress)
+        => Dispatcher.UIThread.Post(() => ApplyUpdate(job, progress));
+
+    private void ApplyUpdate(Job job, JobProgress progress)
+    {
+        if (progress.State == JobState.Queued && this.Jobs.All(x => x.JobId != job.Id))
+        {
+            Jobs.Add(new JobViewModel
+            {
+                JobId = job.Id,
+                Percentage = progress.Percent,
+                State = progress.State,
+                RemoveCmd = new RelayCommand<JobViewModel>(vm =>
+                {
+                    if (vm != null)
+                        Jobs.Remove(vm);
+
+                    Refresh();
+                })
+            });
+        }
+        else
+        {
+            var updatedJob = Jobs.Single(x => x.JobId == job.Id);
+            updatedJob.Percentage = progress.Percent;
+            updatedJob.State = progress.State;
+        }
+
+        Refresh();
+    }
+
+    private void Refresh()
+    {
+        IsJobListEmpty = !Jobs.Any();
+        
+        var qtyOnProcess = Jobs.Count(x => x.State is JobState.Queued or JobState.Running);
+        
+        foreach (var job in Jobs)
+            Log.Information(job.State.ToString());
+        
+        TopText = qtyOnProcess != 0 ? $"Processing ({qtyOnProcess})" : $"All ({Jobs.Count})";
     }
     
-    
+    public void Dispose()
+    {
+        _jobProcessingService.OnStateChanged -= OnJobStateChanged;
+    }
+}
+
+public partial class JobViewModel : ObservableObject
+{
+    public required JobId JobId { get; set; }
+    [ObservableProperty] private double _percentage;
+    [ObservableProperty] private JobState _state;
+    public required IRelayCommand<JobViewModel> RemoveCmd { get; set; }
 }

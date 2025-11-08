@@ -11,14 +11,14 @@ public static class VideoProcessor
 {
     public static async Task CutVideo(
         CutVideoJob jobModel,
-        IProgress<JobProgress>? progress = null,
+        Action<JobProgress>? onStateChanged = null,
         CancellationToken ct = default,
         string ffmpegPath = "ffmpeg")
         => await CutVideo(
             jobModel.MediaRange,
             jobModel.FilePath.LocalPath,
             jobModel.OutputFilePath,
-            progress: progress,
+            onStateChanged: onStateChanged,
             ct: ct,
             ffmpegPath: ffmpegPath);
 
@@ -26,7 +26,7 @@ public static class VideoProcessor
         MediaRange range,
         string input,
         string output,
-        IProgress<JobProgress>? progress = null,
+        Action<JobProgress>? onStateChanged = null,
         CancellationToken ct = default,
         string ffmpegPath = "ffmpeg")
     {
@@ -52,8 +52,8 @@ public static class VideoProcessor
 
         await using var reg = ct.Register(() =>
         {
-            progress?.Report(new JobProgress(0, TimeSpan.Zero, total, JobState.Canceled, "canceled"));
-
+            onStateChanged?.Invoke(new JobProgress(0, TimeSpan.Zero, total, JobState.Canceled));
+            
             try
             {
                 if (!process.HasExited)
@@ -68,7 +68,7 @@ public static class VideoProcessor
         if (!process.Start())
         {
             Log.Error("Could not start ffmpeg.");
-            progress?.Report(new JobProgress(0, TimeSpan.Zero, total, JobState.Failed, "could not start"));
+            onStateChanged?.Invoke(new JobProgress(0, TimeSpan.Zero, total, JobState.Failed));
             return;
         }
 
@@ -94,7 +94,7 @@ public static class VideoProcessor
                     ? Math.Clamp(processed.TotalMilliseconds * 100.0 / total.TotalMilliseconds, 0, 100)
                     : 100.0;
 
-                progress?.Report(new JobProgress(percent, processed, total, JobState.Running, "continue"));
+                onStateChanged?.Invoke(new JobProgress(percent, processed, total, JobState.Running));
             }
             else if (key == "progress")
             {
@@ -102,7 +102,8 @@ public static class VideoProcessor
                     : total.TotalMilliseconds > 0 ? Math.Clamp(processed.TotalMilliseconds * 100.0 / total.TotalMilliseconds, 0, 100)
                     : 100.0;
                 
-                progress?.Report(new JobProgress(percent, processed, total, JobState.Completed, value));
+                if (percent >= 100)
+                    onStateChanged?.Invoke(new JobProgress(percent, processed, total, JobState.Completed));
             }
         }
 
@@ -111,20 +112,20 @@ public static class VideoProcessor
         if (process.ExitCode != 0 && !ct.IsCancellationRequested)
         {
             Log.Error("ffmpeg exited with code {Code}", process.ExitCode);
-            progress?.Report(new JobProgress(0, processed, total, JobState.Failed, $"exit code: {process.ExitCode}"));
+            onStateChanged?.Invoke(new JobProgress(0, processed, total, JobState.Failed));
         }
     }
 
     public static async Task GenerateGif(
         GenerateGifJob jobModel,
-        IProgress<JobProgress>? progress = null,
+        Action<JobProgress>? onStateChanged = null,
         CancellationToken ct = default,
         string ffmpegPath = "ffmpeg")
         => await GenerateGif(
             jobModel.MediaRange,
             jobModel.FilePath.LocalPath,
             jobModel.OutputFilePath,
-            progress: progress,
+            onStateChanged: onStateChanged,
             ct: ct,
             ffmpegPath: ffmpegPath);
 
@@ -135,7 +136,7 @@ public static class VideoProcessor
         string ffmpegPath = "ffmpeg",
         int fps = 12,
         int maxWidth = 480,
-        IProgress<JobProgress>? progress = null,
+        Action<JobProgress>? onStateChanged = null,
         CancellationToken ct = default)
     {
         if (range is null) throw new ArgumentNullException(nameof(range));

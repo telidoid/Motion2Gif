@@ -65,17 +65,11 @@ public partial class MainWindowViewModel : ViewModelBase
             if (_openedFileDescription == null)
                 return;
 
-            var progress = new Progress<JobProgress>(pg =>
-                Log.Information("Progress: {Progress}", pg));
-
             if (vm.Result is VideoCutConfigViewModel cutConfig)
-                _jobProcessingService.ScheduleJob(new CutVideoJob(range, _openedFileDescription.Uri, outputPath),
-                    progress);
-
-
+                _jobProcessingService.ScheduleJob(new CutVideoJob(range, _openedFileDescription.Uri, outputPath));
+            
             if (vm.Result is GenGifConfigViewModel gifConfig)
-                _jobProcessingService.ScheduleJob(new GenerateGifJob(range, _openedFileDescription.Uri, outputPath),
-                    progress);
+                _jobProcessingService.ScheduleJob(new GenerateGifJob(range, _openedFileDescription.Uri, outputPath));
         });
 
         _playerService.PlayerTimeChangedAction = l =>
