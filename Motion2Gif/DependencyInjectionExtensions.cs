@@ -24,6 +24,7 @@ internal static class DependencyInjectionExtensions
             services.AddSingleton<IFilePickerService, FilePickerService>();
             services.AddSingleton<IJobProcessingService, JobProcessingService>();
             services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<ProgressJournalViewModel>();
             
             services.AddSingleton<Func<IStorageProvider>>(_ => () =>
             {

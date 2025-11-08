@@ -23,6 +23,7 @@ public class JobProcessingService: IJobProcessingService
 {
     private readonly ConcurrentDictionary<JobId, Job> _jobs = new();
     private readonly SemaphoreSlim _semaphore = new(4, 4);
+    public static event Action? StateChanged;
 
     public JobId ScheduleJob(IJobModel jobModel, IProgress<JobProgress>? progress = null,
         CancellationToken ct = default)

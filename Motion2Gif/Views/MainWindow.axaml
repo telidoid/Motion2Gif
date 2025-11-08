@@ -6,6 +6,7 @@
         xmlns:vlc="using:LibVLCSharp.Avalonia"
         xmlns:mediaTimelineControl1="clr-namespace:Motion2Gif.Controls.MediaTimelineControl"
         xmlns:rangeSelectorControl="clr-namespace:Motion2Gif.Controls.RangeSelectorControl"
+        xmlns:views="clr-namespace:Motion2Gif.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="600" Height="453"
         MinWidth="496" MinHeight="452"
@@ -36,13 +37,14 @@
 
     <Panel>
         <DockPanel>
-            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+            <Grid ColumnDefinitions="*,Auto" DockPanel.Dock="Top">
                 <Menu Height="20" FontSize="12">
                     <MenuItem Header="_File">
                         <MenuItem Header="_Open..." Command="{Binding OpenVideoFileCmd}"></MenuItem>
                     </MenuItem>
                 </Menu>
-            </StackPanel>
+                <views:ProgressJournalView Grid.Column="1" />
+            </Grid>
 
             <StackPanel DockPanel.Dock="Bottom" Margin="5" Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock VerticalAlignment="Center"
