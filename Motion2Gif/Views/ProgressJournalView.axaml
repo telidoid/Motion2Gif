@@ -19,18 +19,26 @@
             FontSize="12" />
         <FlyoutBase.AttachedFlyout>
             <Flyout>
-                <Panel Width="175">
+                <Panel>
                     <ItemsControl ItemsSource="{Binding Jobs}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:JobViewModel">
-                                <Grid ColumnDefinitions="*,*">
-                                    <ProgressBar Grid.Column="0" 
-                                        ShowProgressText="True"
-                                        Value="{Binding Percentage}" />
-                                    <Button Grid.Column="1"
-                                        Command="{Binding RemoveCmd}"
-                                        CommandParameter="{Binding}"
-                                        Content="X" />
+                                <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="5">
+                                    <ProgressBar Grid.Column="0"
+                                                 Minimum="0"
+                                                 Maximum="100"
+                                                 Width="80"
+                                                 MinWidth="80"
+                                                 ShowProgressText="True"
+                                                 Value="{Binding Percentage}" />
+                                    <Button Grid.Column="1" Cursor="Hand"
+                                            Command="{Binding RemoveCmd}"
+                                            CommandParameter="{Binding}">
+                                        <PathIcon Data="{StaticResource delete_regular}" />
+                                    </Button>
+                                    <Button Grid.Column="2" Cursor="Hand">
+                                        <PathIcon Data="{StaticResource dismiss_circle_regular}" />
+                                    </Button>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
