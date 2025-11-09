@@ -23,20 +23,23 @@
                     <ItemsControl ItemsSource="{Binding Jobs}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:JobViewModel">
-                                <Grid ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="5">
-                                    <ProgressBar Grid.Column="0"
+                                <Grid ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="*,*" ColumnSpacing="5">
+                                    <TextBlock FontSize="12" Grid.Column="0" Grid.Row="0" Text="{Binding State}" />
+                                    <ProgressBar Grid.Column="0" Grid.Row="1"
                                                  Minimum="0"
                                                  Maximum="100"
                                                  Width="80"
                                                  MinWidth="80"
                                                  ShowProgressText="True"
                                                  Value="{Binding Percentage}" />
-                                    <Button Grid.Column="1" Cursor="Hand"
+                                    <Button Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Cursor="Hand"
                                             Command="{Binding RemoveCmd}"
                                             CommandParameter="{Binding}">
                                         <PathIcon Data="{StaticResource delete_regular}" />
                                     </Button>
-                                    <Button Grid.Column="2" Cursor="Hand">
+                                    <Button Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Cursor="Hand"
+                                            Command="{Binding CancelCmd}"
+                                            CommandParameter="{Binding}">
                                         <PathIcon Data="{StaticResource dismiss_circle_regular}" />
                                     </Button>
                                 </Grid>

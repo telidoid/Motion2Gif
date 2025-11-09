@@ -21,7 +21,6 @@ public partial class ProgressJournalViewModel : ViewModelBase
     public ProgressJournalViewModel(IJobProcessingService jobProcessingService)
     {
         _jobProcessingService = jobProcessingService;
-
         _jobProcessingService.OnStateChanged += OnJobStateChanged;
     }
 

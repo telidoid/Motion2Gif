@@ -31,7 +31,7 @@ public class JobProcessingService : IJobProcessingService
     public JobId ScheduleJob(IJobModel jobModel)
     {
         var cts = new CancellationTokenSource();;
-        var job = new Job(JobId.Create(), jobModel, cts, cts.Token);
+        var job = new Job(JobId.Create(), jobModel, cts);
         _jobs.TryAdd(job.Id, job);
         OnStateChanged?.Invoke(job, new JobProgress(0, TimeSpan.Zero, TimeSpan.Zero, JobState.Queued));
         _ = ProcessJobAsync(job);
@@ -41,35 +41,12 @@ public class JobProcessingService : IJobProcessingService
 
     private async Task ProcessJobAsync(Job job)
     {
-        await _semaphore.WaitAsync(job.CancellationToken);
+        await _semaphore.WaitAsync(job.CancellationTokenSource.Token);
         OnStateChanged?.Invoke(job, new JobProgress(0, TimeSpan.Zero, TimeSpan.Zero, JobState.Running));
 
         try
         {
-            switch (job.Model)
-            {
-                case CutVideoJob cutVideoJobModel:
-                    await VideoProcessor.CutVideo(
-                        cutVideoJobModel,
-                        p => OnStateChanged?.Invoke(job, p),
-                        ct: job.CancellationToken);
-                    break;
-
-                case GenerateGifJob generateGifJobModel:
-                    await VideoProcessor.GenerateGif(
-                        generateGifJobModel,
-                        p => OnStateChanged?.Invoke(job, p),
-                        ct: job.CancellationToken);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-        catch (Exception ex)
-        {
-            OnStateChanged?.Invoke(job, new JobProgress(0, TimeSpan.Zero, TimeSpan.Zero, JobState.Failed));
-            Log.Error("Error processing job", ex);
+            await VideoProcessor.ProcessVideo(job.Model, progress => OnStateChanged?.Invoke(job, progress), job.CancellationTokenSource.Token);
         }
         finally
         {
