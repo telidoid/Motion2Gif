@@ -8,13 +8,13 @@ namespace Motion2Gif.Processing;
 
 public interface IJobProcessingService
 {
-    public JobId ScheduleJob(IJobModel jobModel, CancellationToken ct = default);
+    public JobId ScheduleJob(IJobModel jobModel);
     public event Action<Job, JobProgress>? OnStateChanged;
 }
 
 public class DesignJobProcessingService : IJobProcessingService
 {
-    public JobId ScheduleJob(IJobModel jobModel, CancellationToken ct = default)
+    public JobId ScheduleJob(IJobModel jobModel)
     {
         throw new Exception("Design time job processing service");
     }
@@ -28,9 +28,10 @@ public class JobProcessingService : IJobProcessingService
     private readonly SemaphoreSlim _semaphore = new(4, 4);
     public event Action<Job, JobProgress>? OnStateChanged;
 
-    public JobId ScheduleJob(IJobModel jobModel, CancellationToken ct = default)
+    public JobId ScheduleJob(IJobModel jobModel)
     {
-        var job = new Job(JobId.Create(), jobModel, ct);
+        var cts = new CancellationTokenSource();;
+        var job = new Job(JobId.Create(), jobModel, cts, cts.Token);
         _jobs.TryAdd(job.Id, job);
         OnStateChanged?.Invoke(job, new JobProgress(0, TimeSpan.Zero, TimeSpan.Zero, JobState.Queued));
         _ = ProcessJobAsync(job);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -34,13 +35,22 @@ public partial class ProgressJournalViewModel : ViewModelBase
             Jobs.Add(new JobViewModel
             {
                 JobId = job.Id,
+                CancellationTokenSource = job.CancellationTokenSource,
                 Percentage = progress.Percent,
                 State = progress.State,
                 RemoveCmd = new RelayCommand<JobViewModel>(vm =>
                 {
                     if (vm != null)
+                    {
+                        vm.CancellationTokenSource.Cancel();
                         Jobs.Remove(vm);
+                    }
 
+                    Refresh();
+                }),
+                CancelCmd = new RelayCommand<JobViewModel>(vm =>
+                {
+                    vm?.CancellationTokenSource.Cancel();
                     Refresh();
                 })
             });
@@ -76,7 +86,9 @@ public partial class ProgressJournalViewModel : ViewModelBase
 public partial class JobViewModel : ObservableObject
 {
     public required JobId JobId { get; set; }
+    public required CancellationTokenSource CancellationTokenSource { get; set; }
     [ObservableProperty] private double _percentage;
     [ObservableProperty] private JobState _state;
     public required IRelayCommand<JobViewModel> RemoveCmd { get; set; }
+    public required IRelayCommand<JobViewModel> CancelCmd { get; set; }
 }
