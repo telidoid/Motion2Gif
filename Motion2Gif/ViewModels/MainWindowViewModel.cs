@@ -60,16 +60,21 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             var vm = await _dialogService.ShowDialog<ExportDialogViewModel>();
             var range = MediaRange.Create(TrimStart, TrimEnd);
-            var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.mkv";
 
             if (_openedFileDescription == null)
                 return;
 
             if (vm.Result is VideoCutConfigViewModel cutConfig)
+            {
+                var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.mkv";
                 _jobProcessingService.ScheduleJob(new CutVideoJob(range, _openedFileDescription.Uri, outputPath));
-            
+            }
+
             if (vm.Result is GenGifConfigViewModel gifConfig)
+            {
+                var outputPath = $"{Directory.GetCurrentDirectory()}_{Guid.NewGuid()}.gif";
                 _jobProcessingService.ScheduleJob(new GenerateGifJob(range, _openedFileDescription.Uri, outputPath));
+            }
         });
 
         _playerService.PlayerTimeChangedAction = l =>

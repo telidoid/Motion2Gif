@@ -5,7 +5,6 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Motion2Gif.Processing;
-using Serilog;
 
 namespace Motion2Gif.ViewModels;
 
@@ -51,7 +50,11 @@ public partial class ProgressJournalViewModel : ViewModelBase
                 {
                     vm?.CancellationTokenSource.Cancel();
                     Refresh();
-                })
+                }),
+                OpenFolderCmd = new RelayCommand<JobViewModel>(vm =>
+                {
+                    
+                }),
             });
         }
         else
@@ -67,12 +70,7 @@ public partial class ProgressJournalViewModel : ViewModelBase
     private void Refresh()
     {
         IsJobListEmpty = !Jobs.Any();
-        
         var qtyOnProcess = Jobs.Count(x => x.State is JobState.Queued or JobState.Running);
-        
-        foreach (var job in Jobs)
-            Log.Information(job.State.ToString());
-        
         TopText = qtyOnProcess != 0 ? $"Processing ({qtyOnProcess})" : $"All ({Jobs.Count})";
     }
     
@@ -90,4 +88,5 @@ public partial class JobViewModel : ObservableObject
     [ObservableProperty] private JobState _state;
     public required IRelayCommand<JobViewModel> RemoveCmd { get; set; }
     public required IRelayCommand<JobViewModel> CancelCmd { get; set; }
+    public required IRelayCommand<JobViewModel> OpenFolderCmd { get; set; }
 }
