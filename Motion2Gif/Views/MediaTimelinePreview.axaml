@@ -17,20 +17,22 @@
             
             <Grid Height="70"
                   Width="1000000"
-                  RowDefinitions="*, *"
-                  ClipToBounds="False"
+                  RowDefinitions="15, *, *"
+                  ClipToBounds="True"
                   Background="Transparent">
-
+                
                 <mediaTimelineControl1:TimelineControl
-                    Grid.Row="0" />
-
-                <rangeSelectorControl:TimeRangeSelector
-                    Grid.Row="1"
-                    ClipToBounds="False"
-                    ZIndex="1" />
-
-                <mediaTimelineControl1:MediaTimeline
                     Grid.Row="1" />
+                
+                <mediaTimelineControl1:MediaTimelineControl
+                    Grid.Row="2" />
+                    
+                <rangeSelectorControl:TimeRangeSelectorControl
+                    Grid.Row="2"
+                    ClipToBounds="False"
+                    />
+                    
+                <mediaTimelineControl1:PlayHeadControl Grid.Row="0" Grid.RowSpan="3"/>
             </Grid>
             
         </ScrollViewer>

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls.Shapes;
 
 namespace Motion2Gif.Controls.RangeSelectorControl;
 

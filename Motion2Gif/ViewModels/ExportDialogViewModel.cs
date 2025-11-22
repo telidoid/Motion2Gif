@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Serilog;
 
 namespace Motion2Gif.ViewModels;
 
@@ -41,7 +40,6 @@ public partial class ExportDialogViewModel: DialogViewModel
         Selected = GifConfigVm;
         IsCutChosen = false;
         IsGifChosen = true;
-        Log.Information($"GifChosen, {Selected.GetType()}");
     }
 
     [RelayCommand]
@@ -50,6 +48,5 @@ public partial class ExportDialogViewModel: DialogViewModel
         Selected = CutConfigVm;
         IsCutChosen = true;
         IsGifChosen = false;
-        Log.Information($"CutChosen, {Selected.GetType()}");
     }
 }

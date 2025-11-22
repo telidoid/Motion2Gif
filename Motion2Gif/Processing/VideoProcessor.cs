@@ -94,8 +94,6 @@ public static class VideoProcessor
 
     private static void StdOut(string line, TimeSpan total, Action<JobProgress>? onStateChanged, CancellationToken ctx)
     {
-        Log.Information($"{line}, ctx: {ctx.IsCancellationRequested}");
-        
         var keyVal = line.Split('=');
         var (key, value) = (keyVal[0], keyVal[1]);
 
@@ -113,8 +111,5 @@ public static class VideoProcessor
             onStateChanged?.Invoke(new JobProgress(100, total, total, JobState.Completed));
     }
 
-    private static void StdErr(string err)
-    {
-        Log.Error(err);
-    }
+    private static void StdErr(string err) => Log.Error(err);
 }

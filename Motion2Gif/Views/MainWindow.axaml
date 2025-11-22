@@ -70,26 +70,30 @@
 
                         <Grid x:Name="TimelineGrid"
                               Height="70"
-                              RowDefinitions="*, *"
+                              RowDefinitions="15, *, *"
                               ClipToBounds="False"
                               Background="Transparent">
 
                             <mediaTimelineControl1:TimelineControl
-                                Grid.Row="0"
+                                Grid.Row="1"
                                 CurrentTimePosition="{Binding CurrentPosition}"
                                 MediaDuration="{Binding MediaDuration}" />
 
-                            <rangeSelectorControl:TimeRangeSelector
-                                Grid.Row="1"
+                            <mediaTimelineControl1:MediaTimelineControl
+                                Grid.Row="2"
+                                CurrentTimePosition="{Binding CurrentPosition}"
+                                MediaDuration="{Binding MediaDuration}" />
+
+                            <rangeSelectorControl:TimeRangeSelectorControl
+                                Grid.Row="2"
                                 Min="{Binding SelectorMin}"
                                 Max="{Binding MediaDuration}"
                                 TrimStart="{Binding TrimStart}"
                                 TrimEnd="{Binding TrimEnd}"
-                                ClipToBounds="False"
-                                ZIndex="1" />
+                                ClipToBounds="False" />
 
-                            <mediaTimelineControl1:MediaTimeline
-                                Grid.Row="1"
+                            <mediaTimelineControl1:PlayHeadControl
+                                Grid.Row="0" Grid.RowSpan="3"
                                 CurrentTimePosition="{Binding CurrentPosition}"
                                 MediaDuration="{Binding MediaDuration}" />
                         </Grid>

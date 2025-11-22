@@ -7,12 +7,12 @@ using Motion2Gif.Player;
 
 namespace Motion2Gif.Controls.RangeSelectorControl;
 
-public class TimeRangeSelector : Control
+public class TimeRangeSelectorControl : Control
 {
     #region Properties
 
-    public static readonly DirectProperty<TimeRangeSelector, TimeMs> TrimStartProperty =
-        AvaloniaProperty.RegisterDirect<TimeRangeSelector, TimeMs>(
+    public static readonly DirectProperty<TimeRangeSelectorControl, TimeMs> TrimStartProperty =
+        AvaloniaProperty.RegisterDirect<TimeRangeSelectorControl, TimeMs>(
             nameof(TrimStart),
             o => o.TrimStart,
             (o, v) => o.TrimStart = v,
@@ -26,8 +26,8 @@ public class TimeRangeSelector : Control
         set => SetAndRaise(TrimStartProperty, ref _trimStart, value);
     }
 
-    public static readonly DirectProperty<TimeRangeSelector, TimeMs> TrimEndProperty =
-        AvaloniaProperty.RegisterDirect<TimeRangeSelector, TimeMs>(
+    public static readonly DirectProperty<TimeRangeSelectorControl, TimeMs> TrimEndProperty =
+        AvaloniaProperty.RegisterDirect<TimeRangeSelectorControl, TimeMs>(
             nameof(TrimEnd),
             o => o.TrimEnd,
             (o, v) => o.TrimEnd = v,
@@ -41,8 +41,8 @@ public class TimeRangeSelector : Control
         set => SetAndRaise(TrimEndProperty, ref _trimEnd, value);
     }
 
-    public static readonly DirectProperty<TimeRangeSelector, TimeMs> MinProperty =
-        AvaloniaProperty.RegisterDirect<TimeRangeSelector, TimeMs>(
+    public static readonly DirectProperty<TimeRangeSelectorControl, TimeMs> MinProperty =
+        AvaloniaProperty.RegisterDirect<TimeRangeSelectorControl, TimeMs>(
             nameof(Min),
             o => o.Min,
             (o, v) => o.Min = v,
@@ -55,8 +55,8 @@ public class TimeRangeSelector : Control
         set => SetAndRaise(MinProperty, ref _min, value);
     }
 
-    public static readonly DirectProperty<TimeRangeSelector, TimeMs> MaxProperty =
-        AvaloniaProperty.RegisterDirect<TimeRangeSelector, TimeMs>(
+    public static readonly DirectProperty<TimeRangeSelectorControl, TimeMs> MaxProperty =
+        AvaloniaProperty.RegisterDirect<TimeRangeSelectorControl, TimeMs>(
             nameof(Max),
             o => o.Max,
             (o, v) => o.Max = v,
@@ -86,11 +86,11 @@ public class TimeRangeSelector : Control
     private static readonly Cursor DefaultCursor  = new(StandardCursorType.Arrow);
     private static readonly Cursor PointerCursor  = new(StandardCursorType.Hand);
 
-    public TimeRangeSelector()
+    public TimeRangeSelectorControl()
     {
-        AffectsRender<TimeRangeSelector>(MaxProperty, MinProperty, TrimStartProperty, TrimEndProperty);
+        AffectsRender<TimeRangeSelectorControl>(MaxProperty, MinProperty, TrimStartProperty, TrimEndProperty);
 
-        MaxProperty.Changed.AddClassHandler<TimeRangeSelector>((s, e) =>
+        MaxProperty.Changed.AddClassHandler<TimeRangeSelectorControl>((s, e) =>
         {
             TrimStart = new TimeMs(0);
             TrimEnd = new TimeMs(0 + MinimumTimeRangeBetweenHandles);
