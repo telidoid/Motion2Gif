@@ -61,12 +61,24 @@
                 </vlc:VideoView>
 
                 <Grid Grid.Row="1" Margin="10 0" x:Name="TimelineContainer">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" ClipToBounds="False" Background="Transparent">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" 
+                                  ClipToBounds="False" 
+                                  Background="Transparent">
                         <ScrollViewer.Styles>
                             <Style Selector="ScrollViewer /template/ ScrollContentPresenter">
                                 <Setter Property="ClipToBounds" Value="False" />
                             </Style>
                         </ScrollViewer.Styles>
+                        <ScrollViewer.Transitions>
+                            <Transitions>
+                                <VectorTransition Property="ScrollViewer.Offset"
+                                                  Duration="0:0:0.20">
+                                    <VectorTransition.Easing>
+                                        <QuadraticEaseOut/>
+                                    </VectorTransition.Easing>
+                                </VectorTransition>
+                            </Transitions>
+                        </ScrollViewer.Transitions>
 
                         <Grid x:Name="TimelineGrid"
                               Height="70"

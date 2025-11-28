@@ -1,8 +1,11 @@
-﻿using Avalonia;
+﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Motion2Gif.Controls.RangeSelectorControl;
 using Motion2Gif.Player;
 
@@ -49,14 +52,14 @@ public class PlayHeadControl : Control
 
     private const float PlayHeadWidth = 15f;
     private readonly DraggableRect _playHead = new();
-
+    
     public PlayHeadControl()
     {
         CurrentTimePosition = new TimeMs(10_000);
         MediaDuration = new TimeMs(500_000_000);
         AffectsRender<PlayHeadControl>(MediaDurationProperty, CurrentTimePositionProperty);
     }
-
+    
     public override void Render(DrawingContext context)
     {
         context.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, Bounds.Width, PlayHeadWidth));
@@ -73,6 +76,10 @@ public class PlayHeadControl : Control
             c.EndFigure(true);
         }
         context.DrawGeometry(Brushes.Red, null, geometry);
+
+        // temporary decision to scroll
+        var rect = new Rect(rectOriginX, 0, PlayHeadWidth, PlayHeadWidth);
+        Dispatcher.UIThread.Post(() => this.BringIntoView(rect));
 
         context.DrawLine(new Pen(Brushes.Red, 2), new Point(dip, 0), new Point(dip, Bounds.Height));
     }
@@ -97,7 +104,7 @@ public class PlayHeadControl : Control
 
         if (_playHead.TryDrag())
             CurrentTimePosition = TimeMs.FromDip(position.X, Bounds.Width, MediaDuration);
-
+        
         base.OnPointerMoved(e);
     }
 
