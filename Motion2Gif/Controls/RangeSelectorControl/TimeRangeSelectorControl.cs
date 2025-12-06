@@ -79,7 +79,7 @@ public class TimeRangeSelectorControl : Control
     private readonly DraggableRect _leftHandle = new();
     private readonly DraggableRect _rightHandle = new();
 
-    private const double RectWidth = 10;
+    private const double RectWidth = 4;
     private const long MinimumTimeRangeBetweenHandles = 100; // in ms
     
     private static readonly Cursor ResizeEwCursor = new(StandardCursorType.SizeWestEast);
@@ -99,10 +99,15 @@ public class TimeRangeSelectorControl : Control
     
     public override void Render(DrawingContext context)
     {
-        var brush1 = new SolidColorBrush(Colors.Blue, 0.8);
-        var brush2 = new SolidColorBrush(Colors.Magenta, 0.8);
-        context.DrawRectangle(brush1, null, this.GetLeftRect());
-        context.DrawRectangle(brush2, null, this.GetRightRect());
+        var yellowBrush = new SolidColorBrush(Colors.Yellow, 1);
+        var brush3 = new SolidColorBrush(Colors.Aqua, 0.4);
+
+        var leftHandle = this.GetLeftRect();
+        var rightHandle = this.GetRightRect();
+        
+        context.DrawRectangle(yellowBrush, null, leftHandle);
+        context.DrawRectangle(yellowBrush, null, rightHandle);
+        context.DrawRectangle(brush3, null, new Rect(leftHandle.BottomLeft.X, 0, rightHandle.Right - leftHandle.Right, Bounds.Height));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
