@@ -1,9 +1,11 @@
-﻿using Avalonia;
+﻿using System.Reflection.Metadata.Ecma335;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
 using Motion2Gif.Player;
+using Serilog;
 
 namespace Motion2Gif.Controls.RangeSelectorControl;
 
@@ -68,7 +70,7 @@ public class TimeRangeSelectorControl : Control
         get => _max;
         set => SetAndRaise(MaxProperty, ref _max, value);
     }
-    
+
     #endregion
 
     private TimeMs _trimStart;
@@ -78,13 +80,17 @@ public class TimeRangeSelectorControl : Control
 
     private readonly DraggableRect _leftHandle = new();
     private readonly DraggableRect _rightHandle = new();
+    private readonly DraggableRect _createBox = new();
+    private readonly DraggableRect _boxItself = new();
+    private TimeMs _distanceFromStart;
+    private TimeMs _distanceToEnd;
 
     private const double RectWidth = 4;
     private const long MinimumTimeRangeBetweenHandles = 100; // in ms
-    
+
     private static readonly Cursor ResizeEwCursor = new(StandardCursorType.SizeWestEast);
-    private static readonly Cursor DefaultCursor  = new(StandardCursorType.Arrow);
-    private static readonly Cursor PointerCursor  = new(StandardCursorType.Hand);
+    private static readonly Cursor DefaultCursor = new(StandardCursorType.Arrow);
+    private static readonly Cursor PointerCursor = new(StandardCursorType.Hand);
 
     public TimeRangeSelectorControl()
     {
@@ -96,27 +102,45 @@ public class TimeRangeSelectorControl : Control
             TrimEnd = new TimeMs(0 + MinimumTimeRangeBetweenHandles);
         });
     }
-    
+
     public override void Render(DrawingContext context)
     {
-        var yellowBrush = new SolidColorBrush(Colors.Yellow, 1);
-        var brush3 = new SolidColorBrush(Colors.Aqua, 0.4);
+        context.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, Bounds.Width, Bounds.Height));
 
-        var leftHandle = this.GetLeftRect();
-        var rightHandle = this.GetRightRect();
-        
-        context.DrawRectangle(yellowBrush, null, leftHandle);
-        context.DrawRectangle(yellowBrush, null, rightHandle);
-        context.DrawRectangle(brush3, null, new Rect(leftHandle.BottomLeft.X, 0, rightHandle.Right - leftHandle.Right, Bounds.Height));
+        var startDip = TrimStart.ToDip(Max, Bounds.Width);
+        var endDip = TrimEnd.ToDip(Max, Bounds.Width);
+        var rect = new Rect(startDip, 0, endDip - startDip, Bounds.Height);
+
+        context.DrawRectangle(new SolidColorBrush(Colors.Aqua, 0.4), null, rect);
+
+        context.DrawLine(new Pen(Brushes.OrangeRed, 2, DashStyle.Dash),
+            new Point(rect.BottomLeft.X, rect.BottomLeft.Y),
+            new Point(rect.TopLeft.X, rect.TopLeft.Y));
+
+        context.DrawLine(new Pen(Brushes.OrangeRed, 2, DashStyle.Dash),
+            new Point(rect.BottomRight.X, rect.BottomRight.Y),
+            new Point(rect.TopRight.X, rect.TopRight.Y));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         var point = e.GetPosition(this);
-        
-        if (!_leftHandle.TryPress(point, this.GetLeftRect()))
-            _rightHandle.TryPress(point, this.GetRightRect());
-        
+
+        var startDip = TrimStart.ToDip(Max, Bounds.Width);
+        var endDip = TrimEnd.ToDip(Max, Bounds.Width);
+        var rect = new Rect(startDip, 0, endDip - startDip, Bounds.Height);
+
+        if (_boxItself.TryPress(point, rect))
+        {
+            _distanceFromStart = new TimeMs(TimeMs.FromDip(point.X, Bounds.Width, Max).Value - TrimStart.Value);
+            _distanceToEnd = new TimeMs(TrimEnd.Value - TimeMs.FromDip(point.X, Bounds.Width, Max).Value);
+        }
+        else if (_createBox.TryPress(point, new Rect(0, 0, Bounds.Width, Bounds.Height)))
+        {
+            TrimStart = TimeMs.FromDip(point.X, Bounds.Width, Max);
+            TrimEnd = TimeMs.FromDip(point.X, Bounds.Width, Max);
+        }
+
         base.OnPointerPressed(e);
     }
 
@@ -124,25 +148,19 @@ public class TimeRangeSelectorControl : Control
     {
         var point = e.GetPosition(this);
 
-        if (_leftHandle.TryDrag())
+        if (_boxItself.TryDrag())
         {
-            var newTimePosition = TimeMs.FromDip(point.X - RectWidth/2 + RectWidth, Bounds.Width, Max);
-
-            if (newTimePosition < new TimeMs(Value: TrimEnd.Value - MinimumTimeRangeBetweenHandles))
-                TrimStart = newTimePosition;
-            
-            Cursor = ResizeEwCursor;
+            var pointMs = TimeMs.FromDip(point.X, Bounds.Width, Max);
+            TrimStart = new TimeMs(pointMs.Value - _distanceFromStart.Value);
+            TrimEnd = new TimeMs(pointMs.Value + _distanceToEnd.Value);
         }
-        else if (_rightHandle.TryDrag())
+
+        if (_createBox.TryDrag())
         {
-            var newTimePosition = TimeMs.FromDip(point.X - RectWidth/2, Bounds.Width, Max);
-
-            if (newTimePosition > new TimeMs(Value: TrimStart.Value + MinimumTimeRangeBetweenHandles))
-                TrimEnd = newTimePosition;
-            
-            Cursor = ResizeEwCursor;
+            var pointMs = TimeMs.FromDip(point.X, Bounds.Width, Max);
+            _ = pointMs <= TrimStart ? TrimStart = pointMs : TrimEnd = pointMs;
         }
-        
+
         base.OnPointerMoved(e);
     }
 
@@ -150,34 +168,22 @@ public class TimeRangeSelectorControl : Control
     {
         _leftHandle.Release();
         _rightHandle.Release();
-        
-        var point = e.GetPosition(this);
-        
-        Cursor = GetLeftRect().Contains(point) || GetRightRect().Contains(point)
-            ? PointerCursor
-            : DefaultCursor;
-        
+        _createBox.Release();
+        _boxItself.Release();
+
         base.OnPointerReleased(e);
     }
-    
+
     protected override void OnPointerEntered(PointerEventArgs e)
     {
         var point = e.GetPosition(this);
-        
-        Cursor = GetLeftRect().Contains(point) || GetRightRect().Contains(point)
-            ? PointerCursor
-            : DefaultCursor;
-        
+
         base.OnPointerEntered(e);
     }
-    
+
     protected override void OnPointerExited(PointerEventArgs e)
     {
         Cursor = DefaultCursor;
         base.OnPointerExited(e);
     }
-    
-    private Rect GetLeftRect() => new(TrimStart.ToDip(Max, Bounds.Width) - RectWidth, 0, RectWidth, Bounds.Height);
-
-    private Rect GetRightRect() => new(TrimEnd.ToDip(Max, Bounds.Width), 0, RectWidth, Bounds.Height);
 }

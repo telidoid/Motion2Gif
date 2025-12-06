@@ -81,7 +81,7 @@
                         </ScrollViewer.Transitions>
 
                         <Grid x:Name="TimelineGrid"
-                              Height="70"
+                              Height="80"
                               RowDefinitions="15, *, *"
                               ClipToBounds="False"
                               Background="Transparent">
