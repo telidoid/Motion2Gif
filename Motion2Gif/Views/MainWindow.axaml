@@ -100,7 +100,7 @@
                                 Grid.Row="2"
                                 Min="{Binding SelectorMin}"
                                 Max="{Binding MediaDuration}"
-                                TrimStart="{Binding TrimStart}"
+                                TrimOrigin="{Binding TrimStart}"
                                 TrimEnd="{Binding TrimEnd}"
                                 ClipToBounds="False" />
 

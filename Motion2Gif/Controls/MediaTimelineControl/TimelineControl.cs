@@ -55,7 +55,7 @@ public class TimelineControl : Control
 
     public TimelineControl()
     {
-        AffectsRender<TimelineControl>(MediaDurationProperty, CurrentTimePositionProperty);
+        AffectsRender<TimelineControl>(MediaDurationProperty);
         CurrentTimePosition = new TimeMs(10_000);
         MediaDuration = new TimeMs(500_000_000);
     }
@@ -103,25 +103,10 @@ public class TimelineControl : Control
             Typeface.Default,
             12,
             Brushes.Black);
-
+        
         var dip = timePoint.ToDip(MediaDuration, Bounds.Width);
         var x = Math.Round(dip - text.Width / 2.0);
-
+        
         context.DrawText(text, new Point(x, 0));
-    }
-
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
-        base.OnPointerPressed(e);
-    }
-
-    protected override void OnPointerMoved(PointerEventArgs e)
-    {
-        base.OnPointerMoved(e);
-    }
-
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
-    {
-        base.OnPointerReleased(e);
     }
 }

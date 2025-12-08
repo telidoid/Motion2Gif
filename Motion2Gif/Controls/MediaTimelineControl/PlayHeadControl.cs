@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Motion2Gif.Controls.RangeSelectorControl;
 using Motion2Gif.Player;
+using Serilog;
 
 namespace Motion2Gif.Controls.MediaTimelineControl;
 
@@ -52,20 +53,27 @@ public class PlayHeadControl : Control
 
     private const float PlayHeadWidth = 15f;
     private readonly DraggableRect _playHead = new();
-    
+
+    private readonly DispatcherTimer _debounceTimer;
+    private double _currentPlayHeadPosition;
+
     public PlayHeadControl()
     {
-        CurrentTimePosition = new TimeMs(10_000);
-        MediaDuration = new TimeMs(500_000_000);
-        AffectsRender<PlayHeadControl>(MediaDurationProperty, CurrentTimePositionProperty);
+        _debounceTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+        _debounceTimer.Tick += (s, e) =>
+        {
+            _debounceTimer.Stop();
+            CurrentTimePosition = TimeMs.FromDip(_currentPlayHeadPosition, Bounds.Width, MediaDuration);
+        };
+        
+        AffectsRender<PlayHeadControl>(MediaDurationProperty);
     }
     
     public override void Render(DrawingContext context)
     {
         context.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, Bounds.Width, PlayHeadWidth));
 
-        var dip = CurrentTimePosition.ToDip(MediaDuration, Bounds.Width);
-        var rectOriginX = dip - PlayHeadWidth / 2;
+        var rectOriginX = _currentPlayHeadPosition - PlayHeadWidth / 2;
 
         var geometry = new StreamGeometry();
         using (var c = geometry.Open())
@@ -81,7 +89,7 @@ public class PlayHeadControl : Control
         var rect = new Rect(rectOriginX, 0, PlayHeadWidth, PlayHeadWidth);
         Dispatcher.UIThread.Post(() => this.BringIntoView(rect));
 
-        context.DrawLine(new Pen(Brushes.Red, 2), new Point(dip, 0), new Point(dip, Bounds.Height));
+        context.DrawLine(new Pen(Brushes.Red, 2), new Point(_currentPlayHeadPosition, 0), new Point(_currentPlayHeadPosition, Bounds.Height));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -89,7 +97,12 @@ public class PlayHeadControl : Control
         var position = e.GetPosition(this);
 
         if (_playHead.TryPress(position, new Rect(0, 0, Bounds.Width, PlayHeadWidth)))
-            CurrentTimePosition = TimeMs.FromDip(position.X, Bounds.Width, MediaDuration);
+        {
+            _currentPlayHeadPosition = position.X;
+            _debounceTimer.Stop();
+            _debounceTimer.Start();
+            InvalidateVisual();
+        }
 
         base.OnPointerPressed(e);
     }
@@ -103,14 +116,32 @@ public class PlayHeadControl : Control
         Cursor = rect.Contains(position) ? Cursor.Parse("Hand") : Cursor.Default;
 
         if (_playHead.TryDrag())
-            CurrentTimePosition = TimeMs.FromDip(position.X, Bounds.Width, MediaDuration);
+        {
+            _currentPlayHeadPosition = position.X;
+            _debounceTimer.Stop();
+            _debounceTimer.Start();
+            InvalidateVisual();
+        }
         
         base.OnPointerMoved(e);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
+        CurrentTimePosition = TimeMs.FromDip(_currentPlayHeadPosition, Bounds.Width, MediaDuration);
         _playHead.Release();
+        
         base.OnPointerReleased(e);
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        if (change.Property.Name is nameof(CurrentTimePosition) && !_playHead.Pressed)
+        {
+            _currentPlayHeadPosition = CurrentTimePosition.ToDip(MediaDuration, Bounds.Width);
+            InvalidateVisual();
+        }
+        
+        base.OnPropertyChanged(change);
     }
 }

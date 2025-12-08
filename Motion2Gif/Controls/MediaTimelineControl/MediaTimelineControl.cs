@@ -48,16 +48,11 @@ public class MediaTimelineControl : Control
 
     public MediaTimelineControl()
     {
-        AffectsRender<MediaTimelineControl>(CurrentTimePositionProperty, MediaDurationProperty);
+        // AffectsRender<MediaTimelineControl>(CurrentTimePositionProperty, MediaDurationProperty);
     }
 
     public override void Render(DrawingContext context)
     {
-        var nextXPos = CurrentTimePosition == MediaDuration && CurrentTimePosition is not { Value: 0 }
-            ? Bounds.Width
-            : CurrentTimePosition.ToDip(MediaDuration, Bounds.Width);
-
         context.DrawRectangle(Brushes.White, null, new Rect(0, 0, Bounds.Width, Bounds.Height));
-        context.DrawRectangle(Brushes.Green, null, new Rect(0, 0, nextXPos, Bounds.Height));
     }
 }

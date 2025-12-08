@@ -5,6 +5,7 @@ namespace Motion2Gif.Controls.RangeSelectorControl;
 
 public record DraggableRect
 {
+    public bool Pressed => _pressed;
     private bool _pressed;
 
     public bool TryPress(Point point, Rect rect)

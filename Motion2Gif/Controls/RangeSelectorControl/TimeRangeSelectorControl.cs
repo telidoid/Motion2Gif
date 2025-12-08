@@ -1,9 +1,12 @@
-﻿using System.Reflection.Metadata.Ecma335;
+﻿using System;
+using System.Reflection.Metadata.Ecma335;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel.__Internals;
 using Motion2Gif.Player;
 using Serilog;
 
@@ -13,19 +16,19 @@ public class TimeRangeSelectorControl : Control
 {
     #region Properties
 
-    public static readonly DirectProperty<TimeRangeSelectorControl, TimeMs> TrimStartProperty =
+    public static readonly DirectProperty<TimeRangeSelectorControl, TimeMs> TrimOriginProperty =
         AvaloniaProperty.RegisterDirect<TimeRangeSelectorControl, TimeMs>(
-            nameof(TrimStart),
-            o => o.TrimStart,
-            (o, v) => o.TrimStart = v,
+            nameof(TrimOrigin),
+            o => o.TrimOrigin,
+            (o, v) => o.TrimOrigin = v,
             defaultBindingMode: BindingMode.TwoWay,
             enableDataValidation: false
         );
 
-    public TimeMs TrimStart
+    public TimeMs TrimOrigin
     {
-        get => _trimStart;
-        set => SetAndRaise(TrimStartProperty, ref _trimStart, value);
+        get => _trimOrigin;
+        set => SetAndRaise(TrimOriginProperty, ref _trimOrigin, value);
     }
 
     public static readonly DirectProperty<TimeRangeSelectorControl, TimeMs> TrimEndProperty =
@@ -73,7 +76,7 @@ public class TimeRangeSelectorControl : Control
 
     #endregion
 
-    private TimeMs _trimStart;
+    private TimeMs _trimOrigin;
     private TimeMs _trimEnd;
     private TimeMs _min;
     private TimeMs _max;
@@ -82,8 +85,8 @@ public class TimeRangeSelectorControl : Control
     private readonly DraggableRect _rightHandle = new();
     private readonly DraggableRect _createBox = new();
     private readonly DraggableRect _boxItself = new();
-    private TimeMs _distanceFromStart;
-    private TimeMs _distanceToEnd;
+    private double _distanceFromStart;
+    private double _distanceToEnd;
 
     private const double RectWidth = 4;
     private const long MinimumTimeRangeBetweenHandles = 100; // in ms
@@ -92,13 +95,15 @@ public class TimeRangeSelectorControl : Control
     private static readonly Cursor DefaultCursor = new(StandardCursorType.Arrow);
     private static readonly Cursor PointerCursor = new(StandardCursorType.Hand);
 
+    private DipRange _dipRange = new();
+
     public TimeRangeSelectorControl()
     {
-        AffectsRender<TimeRangeSelectorControl>(MaxProperty, MinProperty, TrimStartProperty, TrimEndProperty);
+        AffectsRender<TimeRangeSelectorControl>(MaxProperty, MinProperty, TrimOriginProperty, TrimEndProperty);
 
         MaxProperty.Changed.AddClassHandler<TimeRangeSelectorControl>((s, e) =>
         {
-            TrimStart = new TimeMs(0);
+            TrimOrigin = new TimeMs(0);
             TrimEnd = new TimeMs(0 + MinimumTimeRangeBetweenHandles);
         });
     }
@@ -107,9 +112,8 @@ public class TimeRangeSelectorControl : Control
     {
         context.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, Bounds.Width, Bounds.Height));
 
-        var startDip = TrimStart.ToDip(Max, Bounds.Width);
-        var endDip = TrimEnd.ToDip(Max, Bounds.Width);
-        var rect = new Rect(startDip, 0, endDip - startDip, Bounds.Height);
+        var normalized = _dipRange.Normalize();
+        var rect = new Rect(normalized.Origin, 0, normalized.Width, Bounds.Height);
 
         context.DrawRectangle(new SolidColorBrush(Colors.Aqua, 0.4), null, rect);
 
@@ -125,22 +129,19 @@ public class TimeRangeSelectorControl : Control
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         var point = e.GetPosition(this);
-
-        var startDip = TrimStart.ToDip(Max, Bounds.Width);
-        var endDip = TrimEnd.ToDip(Max, Bounds.Width);
-        var rect = new Rect(startDip, 0, endDip - startDip, Bounds.Height);
+        var rect = new Rect(_dipRange.Origin, 0, _dipRange.Width, Bounds.Height);
 
         if (_boxItself.TryPress(point, rect))
         {
-            _distanceFromStart = new TimeMs(TimeMs.FromDip(point.X, Bounds.Width, Max).Value - TrimStart.Value);
-            _distanceToEnd = new TimeMs(TrimEnd.Value - TimeMs.FromDip(point.X, Bounds.Width, Max).Value);
+            _distanceFromStart = point.X - _dipRange.Origin;
+            _distanceToEnd = _dipRange.End - point.X;
         }
         else if (_createBox.TryPress(point, new Rect(0, 0, Bounds.Width, Bounds.Height)))
         {
-            TrimStart = TimeMs.FromDip(point.X, Bounds.Width, Max);
-            TrimEnd = TimeMs.FromDip(point.X, Bounds.Width, Max);
+            _dipRange = new DipRange(point.X, point.X);
         }
 
+        InvalidateVisual();
         base.OnPointerPressed(e);
     }
 
@@ -149,18 +150,12 @@ public class TimeRangeSelectorControl : Control
         var point = e.GetPosition(this);
 
         if (_boxItself.TryDrag())
-        {
-            var pointMs = TimeMs.FromDip(point.X, Bounds.Width, Max);
-            TrimStart = new TimeMs(pointMs.Value - _distanceFromStart.Value);
-            TrimEnd = new TimeMs(pointMs.Value + _distanceToEnd.Value);
-        }
+            _dipRange = new DipRange(point.X - _distanceFromStart, point.X + _distanceToEnd);
 
         if (_createBox.TryDrag())
-        {
-            var pointMs = TimeMs.FromDip(point.X, Bounds.Width, Max);
-            _ = pointMs <= TrimStart ? TrimStart = pointMs : TrimEnd = pointMs;
-        }
+            _dipRange = _dipRange with { End = point.X };
 
+        InvalidateVisual();
         base.OnPointerMoved(e);
     }
 
@@ -174,16 +169,35 @@ public class TimeRangeSelectorControl : Control
         base.OnPointerReleased(e);
     }
 
-    protected override void OnPointerEntered(PointerEventArgs e)
+    private void UpdateTimeMsRange()
     {
-        var point = e.GetPosition(this);
-
-        base.OnPointerEntered(e);
     }
+}
 
-    protected override void OnPointerExited(PointerEventArgs e)
+public readonly record struct DipRange(double Origin, double End)
+{
+    public DipRange Normalize() => new(Math.Min(Origin, End), Math.Max(Origin, End));
+    public double Width => End - Origin;
+}
+
+public record struct TimeMsRange(TimeMs Origin, TimeMs End);
+
+public static class DipRangeExtensions
+{
+    extension(DipRange dipRange)
     {
-        Cursor = DefaultCursor;
-        base.OnPointerExited(e);
+        public TimeMsRange ToTimeMsRange(double width, TimeMs duration)
+        {
+            var start = dipRange.Origin;
+            var end = dipRange.End;
+
+            if (start > end)
+                (start, end) = (end, start);
+
+            return new TimeMsRange(
+                TimeMs.FromDip(start, width, duration),
+                TimeMs.FromDip(end, width, duration)
+            );
+        }
     }
 }
