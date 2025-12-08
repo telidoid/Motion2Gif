@@ -122,7 +122,7 @@ public class PlayHeadControl : Control
             _debounceTimer.Start();
             InvalidateVisual();
         }
-        
+
         base.OnPointerMoved(e);
     }
 
