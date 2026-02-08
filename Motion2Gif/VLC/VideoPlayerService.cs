@@ -9,7 +9,7 @@ namespace Motion2Gif.VLC;
 public class VideoPlayerService : IVideoPlayerService, IDisposable
 {
     private readonly MediaPlayer _player;
-    private readonly LibVLC _libVlc = new();
+    private readonly LibVLC _libVlc = new("--avcodec-hw=dxva2", "--vout=direct3d11");
     private long _userDefinedTimePosition = 0;
 
     public VideoPlayerService()
